@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Thanh toán')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow-order">
+    <section class="checkout-shell">
+        <div class="checkout-card">
+            <h1>Thông tin giao hàng</h1>
+            <form th:action="@{/order/submit}" method="post" class="checkout-form">
+                <div class="form-row">
+                    <label>Họ và tên</label>
+                    <input name="fullName" th:value="${user.fullName}" required>
+                </div>
+                <div class="form-row">
+                    <label>Số điện thoại</label>
+                    <input name="phone" placeholder="Nhập số điện thoại" required>
+                </div>
+                <div class="form-row">
+                    <label>Địa chỉ nhận hàng</label>
+                    <textarea name="address" placeholder="111, Phường An Đông, Thành phố Hồ Chí Minh" required></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Ghi chú</label>
+                    <textarea name="note" placeholder="Lưu ý đặc biệt nếu có"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Điểm tích lũy hiện có</label>
+                    <input name="pointsUsed" type="number" min="0" th:attr="max=${availablePoints}" value="0">
+                    <small>Mỗi 1 điểm = 10.000đ. Hiện có <strong th:text="${availablePoints}"></strong> điểm.</small>
+                </div>
+
+                <div class="order-summary-box">
+                    <div class="summary-row">
+                        <span>Tạm tính</span>
+                        <strong th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'"></strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí giao hàng</span>
+                        <strong>Miễn phí</strong>
+                    </div>
+                </div>
+
+                <button type="submit" class="buy-button large">Xác nhận đặt hàng</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Kết quả tìm kiếm')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="category-shell">
+        <div class="section-header">
+            <h1>Kết quả tìm kiếm cho "<span th:text="${keyword}"></span>"</h1>
+        </div>
+        <div class="category-grid">
+            <article class="product-card" th:each="item : ${products}">
+                <a th:href="@{/products/{id}(id=${item.id})}">
+                    <div class="product-image"><img th:src="@{/images/{file}(file=${item.image})}"></div>
+                    <h3 th:text="${item.name}"></h3>
+                    <div class="price red" th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
+                </a>
+            </article>
+            <p th:if="${#lists.isEmpty(products)}">Không tìm thấy sản phẩm phù hợp.</p>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

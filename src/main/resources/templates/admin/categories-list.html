@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Quản lý danh mục')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="admin-shell">
+        <div class="section-header">
+            <h1>Quản lý danh mục</h1>
+            <div class="admin-actions">
+                <a class="secondary-button" th:href="@{/admin}">Dashboard</a>
+                <a class="buy-button" th:href="@{/admin/categories/add}">+ Thêm danh mục</a>
+            </div>
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Icon</th>
+                    <th>Thứ tự</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${categories}">
+                    <td th:text="${item.id}"></td>
+                    <td th:text="${item.name}"></td>
+                    <td><i class="bi" th:classappend="${item.iconClass}"></i> <span th:text="${item.iconClass}"></span></td>
+                    <td th:text="${item.displayOrder}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/admin/categories/edit/{id}(id=${item.id})}">Sửa</a>
+                        <a th:href="@{/admin/categories/delete/{id}(id=${item.id})}" onclick="return confirm('Xóa danh mục?')">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

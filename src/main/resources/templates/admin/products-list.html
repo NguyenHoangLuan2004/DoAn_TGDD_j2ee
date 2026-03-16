@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Quản lý sản phẩm')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="admin-shell">
+        <div class="section-header">
+            <h1>Quản lý sản phẩm</h1>
+            <div class="admin-actions">
+                <a class="secondary-button" th:href="@{/admin}">Dashboard</a>
+                <a class="buy-button" th:href="@{/admin/products/add}">+ Thêm sản phẩm</a>
+            </div>
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ảnh</th>
+                    <th>Tên</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${products}">
+                    <td th:text="${item.id}"></td>
+                    <td><img th:src="@{/images/{file}(file=${item.image})}" class="admin-thumb"></td>
+                    <td th:text="${item.name}"></td>
+                    <td th:text="${item.category.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></td>
+                    <td th:text="${item.stock}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/admin/products/edit/{id}(id=${item.id})}">Sửa</a>
+                        <a th:href="@{/admin/products/delete/{id}(id=${item.id})}" onclick="return confirm('Xóa sản phẩm?')">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

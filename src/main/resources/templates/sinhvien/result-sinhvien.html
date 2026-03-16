@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Kết quả sinh viên')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow">
+    <section class="auth-box">
+        <div class="auth-panel wide">
+            <h1 th:text="${message}"></h1>
+            <table class="admin-table">
+                <thead>
+                <tr><th>Tên</th><th>Tuổi</th><th>Khoa</th></tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="${sinhVien.ten}"></td>
+                    <td th:text="${sinhVien.tuoi}"></td>
+                    <td th:text="${sinhVien.khoa}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

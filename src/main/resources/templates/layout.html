@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">TGDD Demo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/tgdd.css}">
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<div th:fragment="header">
+
+    <div class="top-banner">
+        <img th:src="@{/images/top-banner.png}" alt="Top banner">
+    </div>
+
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <a th:href="@{/}" class="logo-link">
+                <img th:src="@{/images/logo-tgdd.png}" class="site-logo" alt="Logo TGDD">
+            </a>
+
+            <form class="search-box" th:action="@{/search}" method="get">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" placeholder="Bạn tìm gì..." th:value="${param.q}">
+            </form>
+
+            <div class="header-actions">
+
+                <a class="action-chip" th:if="${currentUser == null}" th:href="@{/login}">
+                    <i class="bi bi-person"></i>
+                    <span>Đăng nhập</span>
+                </a>
+
+                <a class="action-chip" th:if="${currentUser != null and !isAdmin}" th:href="@{/logout}">
+                    <i class="bi bi-person-check"></i>
+                    <span th:text="${currentUser.fullName}">Khách hàng</span>
+                </a>
+
+                <a class="action-chip" th:if="${currentUser != null and isAdmin}" th:href="@{/admin}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Quản trị</span>
+                </a>
+
+                <a class="action-chip" th:href="@{/cart}">
+                    <i class="bi bi-cart3"></i>
+                    <span th:text="'Giỏ hàng ' + ${cartCount}">Giỏ hàng</span>
+                </a>
+
+                <button type="button" class="location-chip location-chip-btn" id="openLocationModal">
+                    <i class="bi bi-geo-alt"></i>
+                    <span id="selectedLocation">Hồ Chí Minh</span>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a th:each="cat : ${navCategories}"
+               th:href="@{/products/category/{id}(id=${cat.id})}">
+                <i class="bi" th:classappend="${cat.iconClass}"></i>
+                <span th:text="${cat.name}">Danh mục</span>
+            </a>
+        </nav>
+
+    </header>
+
+</div>
+
+<!-- ================= FOOTER ================= -->
+<div th:fragment="footer">
+
+    <footer class="site-footer">
+
+        <!-- KEYWORDS -->
+        <section class="keywords-section">
+            <h2>Mọi người cũng tìm kiếm</h2>
+
+            <div class="keyword-cloud">
+                <a href="#">laptop</a>
+                <a href="#">tai nghe</a>
+                <a href="#">đồng hồ</a>
+                <a href="#">pc</a>
+                <a href="#">macbook</a>
+                <a href="#">dell</a>
+                <a href="#">asus</a>
+                <a href="#">điện thoại xiaomi</a>
+                <a href="#">máy tính bảng lenovo</a>
+                <a href="#">orient star</a>
+                <a href="#">loa marshall</a>
+                <a href="#">loa jbl</a>
+                <a href="#">đồng hồ movado</a>
+                <a href="#">laptop gaming</a>
+                <a href="#">chuột gaming</a>
+                <a href="#">gaming phone</a>
+                <a href="#">đồng hồ đôi</a>
+                <a href="#">laptop đồ họa</a>
+                <a href="#">iphone 14</a>
+                <a href="#">iphone 15</a>
+                <a href="#">iphone 16</a>
+                <a href="#">iphone 17</a>
+                <a href="#">lenovo legion</a>
+                <a href="#">lenovo thinkpad</a>
+                <a href="#">macbook pro m5</a>
+                <a href="#">ipad pro m5</a>
+                <a href="#">asus tuf gaming</a>
+                <a href="#">iphone 17 pro</a>
+                <a href="#">iphone 17 256gb</a>
+                <a href="#">iphone 17 pro max</a>
+                <a href="#">g304</a>
+                <a href="#">jbl charge 5</a>
+                <a href="#">dell g15 5530</a>
+                <a href="#">hp spectre x360</a>
+                <a href="#">msi katana 15</a>
+                <a href="#">garmin fenix 8</a>
+                <a href="#">garmin forerunner 55</a>
+                <a href="#">Máy chạy bộ</a>
+                <a href="#">máy lọc nước</a>
+                <a href="#">iPhone 16 Plus</a>
+                <a href="#">iPhone 16 Pro Max</a>
+                <a href="#">iPhone 16e</a>
+                <a href="#">tủ lạnh</a>
+                <a href="#">samsung galaxy s26 series</a>
+                <a href="#">samsung galaxy s26</a>
+                <a href="#">samsung galaxy s26 plus</a>
+                <a href="#">samsung galaxy s26 ultra</a>
+                <a href="#">iphone 17e</a>
+            </div>
+        </section>
+
+        <!-- FOOTER GRID -->
+        <section class="footer-grid">
+
+            <!-- COL 1 -->
+            <div class="footer-col">
+                <h4>Tổng đài hỗ trợ</h4>
+                <p>Gọi mua: <strong>1900 232 460</strong> (8:00 - 21:30)</p>
+                <p>Khiếu nại: <strong>1800 1062</strong> (8:00 - 21:30)</p>
+                <p>Bảo hành: <strong>1900 232 464</strong> (8:00 - 21:00)</p>
+            </div>
+
+            <!-- COL 2 -->
+            <div class="footer-col">
+                <h4>Về công ty</h4>
+                <a href="https://mwg.vn" target="_blank" rel="nofollow">Giới thiệu công ty (MWG.vn)</a>
+                <a href="https://vieclam.thegioididong.com" target="_blank" rel="nofollow">Tuyển dụng</a>
+                <a href="#" rel="nofollow">Gửi góp ý, khiếu nại</a>
+                <a href="#" rel="nofollow">Tìm siêu thị (2.956 shop)</a>
+            </div>
+
+            <!-- COL 3 -->
+            <div class="footer-col">
+                <h4>Thông tin khác</h4>
+                <a href="#" rel="nofollow">Tích điểm Quà tặng VIP</a>
+                <a href="#" rel="nofollow">Lịch sử mua hàng</a>
+                <a href="#" rel="nofollow">Đăng ký bán hàng CTV chiết khấu cao</a>
+                <a href="#" rel="nofollow">Tìm hiểu về mua trả chậm</a>
+                <a href="#" rel="nofollow">Chính sách bảo hành</a>
+                <a href="#" rel="nofollow">Chính sách đổi trả</a>
+                <a href="#" rel="nofollow">Giao hàng &amp; Thanh toán</a>
+                <a href="#" rel="nofollow">Hướng dẫn mua online</a>
+            </div>
+
+            <!-- COL 4 -->
+            <div class="footer-col">
+                <h4>Website cùng tập đoàn</h4>
+
+                <div class="footer-badges">
+                    <span>topzone</span>
+                    <span>Điện Máy Xanh</span>
+                    <span>Bách Hóa Xanh</span>
+                    <span>An Khang</span>
+                    <span>AVAKids</span>
+                    <span>Việc làm</span>
+                    <span>EraBlue</span>
+                    <span>Thợ Xanh</span>
+                </div>
+
+                <div class="footer-social">
+                    <p>
+                        <i class="bi bi-facebook"></i>
+                        <a href="https://www.facebook.com/thegioididongcom" target="_blank" rel="nofollow">3886.8k Fan</a>
+                    </p>
+
+                    <p>
+                        <i class="bi bi-youtube"></i>
+                        <a href="https://www.youtube.com/user/TGDDVideoReviews" target="_blank" rel="nofollow">876k Đăng ký</a>
+                    </p>
+
+                    <p>
+                        <i class="bi bi-chat-dots"></i>
+                        <a href="https://zalo.me/936590283559458736" target="_blank" rel="nofollow">Zalo TGDĐ</a>
+                    </p>
+                </div>
+
+                <div class="footer-certify">
+                    <span class="certify-blue">Đã thông báo</span>
+                    <span class="certify-red">Khiếu nại</span>
+                    <span class="certify-dark">DMCA PROTECTED</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- COPYRIGHT -->
+        <div class="copyright">
+            © 2018. Công Ty Cổ Phần Đầu Tư Điện Máy Xanh. GPDKKD: 0303217354 do sở KH &amp; ĐT TP.HCM cấp ngày 02/01/2007.
+            GPMXH: 21/GP-BTTTT do Bộ Thông Tin và Truyền Thông cấp ngày 11/01/2021.<br>
+            Địa chỉ: 128 Trần Quang Khải, P.Tân Định, TP. Hồ Chí Minh. Địa chỉ liên hệ và gửi chứng từ:
+            Lô T2-1.2, Đường D1, P.Tăng Nhơn Phú, TP.Hồ Chí Minh. Điện thoại: 028 38125960.
+            Email: hotrotmdt@thegioididong.com. Chịu trách nhiệm nội dung: Huỳnh Văn Tốt.
+            Đại diện ủy quyền giải quyết các vấn đề liên quan bảo vệ quyền lợi người tiêu dùng: Huỳnh Văn Tốt.
+            Email: hotrotmdt@thegioididong.com.
+            <a href="#" rel="nofollow">Xem chính sách sử dụng</a>
+        </div>
+
+    </footer>
+
+    <!-- ================= CHAT AI ================= -->
+    <div class="chat-widget">
+
+        <button class="chat-toggle" id="chatToggle" type="button">
+            <img th:src="@{/images/ai-icon.png}" alt="AI icon">
+        </button>
+
+        <div class="chat-window" id="chatWindow">
+
+            <div class="chat-header">
+                <div class="chat-title">
+                    <img th:src="@{/images/ai-icon.png}" class="chat-avatar" alt="AI avatar">
+                    <span>Thế giới di động AI</span>
+                </div>
+
+                <button class="chat-close" id="chatClose" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message ai">
+                    Xin chào 👋 Tôi là trợ lý AI của Thế Giới Di Động.
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input id="chatInput"
+                       placeholder="Nhập câu hỏi..."
+                       onkeydown="if(event.key==='Enter'){sendChat()}">
+
+                <button id="chatSend" type="button">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= JS ================= -->
+<div th:fragment="scripts">
+    <script th:src="@{/js/site.js}"></script>
+    <script th:src="@{/js/chat.js}"></script>
+</div>
+
+</body>
+</html>

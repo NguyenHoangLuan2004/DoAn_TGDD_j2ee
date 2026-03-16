@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Đăng nhập')}"></head>
+<body class="auth-page tgdd-auth-page">
+
+<header class="tgdd-auth-header">
+    <div class="tgdd-auth-header-inner">
+        <a th:href="@{/}" class="tgdd-auth-brand">
+            <img th:src="@{/images/logo-tgdd.png}" alt="Thế Giới Di Động">
+            <span>Đăng nhập</span>
+        </a>
+        <a th:href="@{/}" class="tgdd-auth-help">Bạn cần giúp đỡ?</a>
+    </div>
+</header>
+
+<main class="tgdd-auth-hero">
+    <div class="tgdd-auth-hero-inner">
+        <section class="tgdd-auth-banner">
+            <div class="tgdd-auth-banner-content">
+                <span class="tgdd-auth-badge">thegioididong.com</span>
+
+                <h1>Mua sắm công nghệ chính hãng,<br>giá tốt mỗi ngày</h1>
+
+                <p>
+                    Đăng nhập để theo dõi đơn hàng, lưu giỏ hàng, nhận ưu đãi thành viên
+                    và mua sắm nhanh hơn trên hệ thống Thế Giới Di Động.
+                </p>
+
+                <div class="tgdd-auth-tags">
+                    <span>Điện thoại</span>
+                    <span>Laptop</span>
+                    <span>Phụ kiện</span>
+                    <span>Smartwatch</span>
+                    <span>Tablet</span>
+                    <span>Chính hãng 100%</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="tgdd-auth-card-wrap">
+            <div class="tgdd-auth-card">
+                <div class="tgdd-auth-ribbon">Ưu đãi thành viên</div>
+
+                <h2>Đăng nhập</h2>
+
+                <form th:action="@{/login}" method="post" class="tgdd-auth-form">
+                    <input type="hidden" name="redirect" th:value="${redirect}">
+
+                    <div class="tgdd-field">
+                        <label>Email</label>
+                        <input
+                                type="email"
+                                name="email"
+                                placeholder="Nhập email của bạn"
+                                autocomplete="username"
+                                required>
+                    </div>
+
+                    <div class="tgdd-field">
+                        <label>Mật khẩu</label>
+                        <div class="tgdd-password-wrap">
+                            <input
+                                    type="password"
+                                    name="password"
+                                    id="passwordField"
+                                    placeholder="Nhập mật khẩu"
+                                    autocomplete="current-password"
+                                    required>
+                            <button type="button" class="tgdd-toggle-password" onclick="togglePassword()">Hiện</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="tgdd-auth-submit">Đăng nhập</button>
+
+                    <p class="error tgdd-auth-error" th:if="${error}" th:text="${error}"></p>
+                </form>
+
+                <div class="tgdd-demo-login">
+                    <div class="tgdd-demo-title">Đăng nhập nhanh tài khoản demo</div>
+
+                    <div class="tgdd-demo-buttons">
+                        <button type="button" onclick="fillDemo('khach@tgdd.vn','123456')">Khách hàng</button>
+                        <button type="button" onclick="fillDemo('admin@tgdd.vn','admin123')">Admin</button>
+                    </div>
+
+                    <div class="tgdd-demo-accounts">
+                        <div>
+                            <strong>Admin</strong>
+                            <span>admin@tgdd.vn / admin123</span>
+                        </div>
+                        <div>
+                            <strong>Khách hàng</strong>
+                            <span>khach@tgdd.vn / 123456</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tgdd-auth-extra">
+                    <a th:href="@{/}">Về trang chủ</a>
+                    <span>•</span>
+                    <a href="javascript:void(0)">Quên mật khẩu</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    function fillDemo(email, password) {
+        document.querySelector('input[name="email"]').value = email;
+        document.querySelector('input[name="password"]').value = password;
+    }
+
+    function togglePassword() {
+        const input = document.getElementById('passwordField');
+        const btn = document.querySelector('.tgdd-toggle-password');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = 'Ẩn';
+        } else {
+            input.type = 'password';
+            btn.textContent = 'Hiện';
+        }
+    }
+</script>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

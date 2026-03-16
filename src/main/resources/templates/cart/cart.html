@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Giỏ hàng')}"></head>
+
+<style>
+    .keywords-section {
+        display: none !important;
+    }
+</style>
+
+<body class="cart-page">
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell cart-page-custom">
+
+    <!-- EMPTY CART -->
+    <section th:if="${#lists.isEmpty(cartItems)}" class="cart-empty-wrap">
+        <div class="cart-empty-card">
+            <img th:src="@{/images/empty-cart.svg}" alt="Giỏ hàng trống" class="cart-empty-image">
+
+            <h1 class="cart-empty-title">Giỏ hàng trống</h1>
+            <p class="cart-empty-desc">Không có sản phẩm nào trong giỏ hàng</p>
+
+            <a class="cart-empty-home-btn" th:href="@{/}">Về trang chủ</a>
+
+            <p class="cart-empty-support">
+                Khi cần trợ giúp vui lòng gọi
+                <a href="tel:1900232460">1900 232 460</a>
+                hoặc
+                <a href="tel:02836221060">028.3622.1060</a>
+                <span>(8h00 - 21h30)</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- CART HAS ITEMS -->
+    <section th:unless="${#lists.isEmpty(cartItems)}" class="cart-shell">
+        <div class="section-header">
+            <h1>Giỏ hàng của bạn</h1>
+            <a th:href="@{/cart/clear}">Xóa tất cả</a>
+        </div>
+
+        <div class="cart-layout">
+            <div class="cart-list">
+                <article class="cart-item" th:each="item : ${cartItems}">
+                    <img th:src="@{/images/{file}(file=${item.product.image})}" th:alt="${item.product.name}">
+
+                    <div class="cart-item-info">
+                        <h3 th:text="${item.product.name}"></h3>
+
+                        <div class="price red"
+                             th:text="${#numbers.formatDecimal(item.product.price,0,'COMMA',0,'POINT')} + 'đ'">
+                        </div>
+
+                        <form th:action="@{/cart/update/{id}(id=${item.product.id})}" method="post" class="qty-form">
+                            <input type="number" name="quantity" min="1" th:value="${item.quantity}">
+                            <button type="submit">Cập nhật</button>
+                        </form>
+                    </div>
+
+                    <a class="remove-link" th:href="@{/cart/remove/{id}(id=${item.product.id})}">Xóa</a>
+                </article>
+            </div>
+
+            <aside class="cart-summary">
+                <h3>Tạm tính</h3>
+
+                <div class="summary-row">
+                    <span>Số sản phẩm</span>
+                    <strong th:text="${cartCount}"></strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Tạm tính</span>
+                    <strong th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'"></strong>
+                </div>
+
+                <a class="buy-button large" th:href="@{/order/checkout}">Tiếp tục thanh toán</a>
+            </aside>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

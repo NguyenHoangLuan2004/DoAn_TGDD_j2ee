@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head(${product.name})}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="detail-shell">
+        <div class="detail-gallery">
+            <img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}">
+        </div>
+
+        <div class="detail-info">
+            <div class="badge-brand" th:text="${product.brand}"></div>
+            <h1 th:text="${product.name}">Sản phẩm</h1>
+
+            <div class="detail-price-row">
+                <span class="price red large"
+                      th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'"></span>
+
+                <span class="old-price" th:if="${product.originalPrice != null}">
+                    <span th:text="${#numbers.formatDecimal(product.originalPrice,0,'COMMA',0,'POINT')} + 'đ'"></span>
+                    <em th:if="${product.discountPercent > 0}"
+                        th:text="'-' + ${product.discountPercent} + '%'"></em>
+                </span>
+            </div>
+
+            <p class="detail-short" th:text="${product.shortDescription}"></p>
+
+            <ul class="feature-list">
+                <li>Hàng chính hãng - bảo hành toàn quốc</li>
+                <li>Tặng điểm tích lũy: mỗi 10.000đ = 1 điểm</li>
+                <li>Giao nhanh tại Hồ Chí Minh</li>
+            </ul>
+
+            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" class="buy-form">
+                <label>Số lượng</label>
+                <input type="number" name="quantity" min="1" value="1">
+                <input type="hidden" th:name="redirectUrl" th:value="@{/products/{id}(id=${product.id})}">
+                <button type="submit" class="buy-button large">Thêm vào giỏ hàng</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="detail-description">
+        <h2>Mô tả sản phẩm</h2>
+        <p th:text="${product.description}"></p>
+    </section>
+
+    <section class="related-section">
+        <div class="section-header">
+            <h2>Sản phẩm liên quan</h2>
+        </div>
+
+        <div class="category-grid">
+            <article class="product-card" th:each="item : ${relatedProducts}" th:if="${item.id != product.id}">
+                <a th:href="@{/products/{id}(id=${item.id})}">
+                    <div class="product-image">
+                        <img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}">
+                    </div>
+                    <h3 th:text="${item.name}"></h3>
+                    <div class="price red"
+                         th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
+                </a>
+            </article>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const product = {
+            id: /*[[${product.id}]]*/ 0,
+            name: /*[[${product.name}]]*/ "",
+            image: /*[[${product.image}]]*/ "",
+            price: /*[[${product.price}]]*/ 0
+        };
+
+        let viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
+
+        viewedProducts = viewedProducts.filter(item => String(item.id) !== String(product.id));
+        viewedProducts.unshift(product);
+
+        if (viewedProducts.length > 6) {
+            viewedProducts = viewedProducts.slice(0, 6);
+        }
+
+        localStorage.setItem("viewedProducts", JSON.stringify(viewedProducts));
+    });
+</script>
+</body>
+</html>

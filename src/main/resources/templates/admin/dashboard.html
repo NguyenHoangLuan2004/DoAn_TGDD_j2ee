@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Quản trị demo')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="admin-shell">
+        <div class="section-header">
+            <h1>Khu vực quản trị</h1>
+            <a th:href="@{/logout}">Đăng xuất</a>
+        </div>
+
+        <div class="admin-cards">
+            <a class="admin-card" th:href="@{/admin/products}">
+                <strong th:text="${productCount}"></strong>
+                <span>Sản phẩm</span>
+            </a>
+            <a class="admin-card" th:href="@{/admin/categories}">
+                <strong th:text="${categoryCount}"></strong>
+                <span>Danh mục</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

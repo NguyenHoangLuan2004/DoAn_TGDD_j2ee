@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Form sinh viên')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow">
+    <section class="auth-box">
+        <div class="auth-panel wide">
+            <h1>Form sinh viên</h1>
+            <form th:action="@{/sinhvien}" th:object="${sinhVien}" method="post" class="auth-form">
+                <label>Tên</label>
+                <input th:field="*{ten}">
+                <small class="error" th:errors="*{ten}"></small>
+                <label>Tuổi</label>
+                <input type="number" th:field="*{tuoi}">
+                <small class="error" th:errors="*{tuoi}"></small>
+                <label>Khoa</label>
+                <input th:field="*{khoa}">
+                <small class="error" th:errors="*{khoa}"></small>
+                <button class="buy-button large" type="submit">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

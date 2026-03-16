@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Biểu mẫu sản phẩm')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow">
+    <section class="auth-box">
+        <div class="auth-panel wide">
+            <h1 th:text="${product.id == null ? 'Thêm sản phẩm' : 'Cập nhật sản phẩm'}"></h1>
+            <form th:action="@{/admin/products/save}" th:object="${product}" method="post" class="auth-form grid-form">
+                <input type="hidden" th:field="*{id}">
+                <label>Tên sản phẩm</label>
+                <input th:field="*{name}">
+                <label>Giá bán</label>
+                <input type="number" th:field="*{price}">
+                <label>Giá gốc</label>
+                <input type="number" th:field="*{originalPrice}">
+                <label>Thương hiệu</label>
+                <input th:field="*{brand}">
+                <label>Tồn kho</label>
+                <input type="number" th:field="*{stock}">
+                <label>Ảnh (file trong /static/images)</label>
+                <input th:field="*{image}">
+                <label>Danh mục</label>
+                <select th:field="*{category.id}">
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                </select>
+                <label>Mô tả ngắn</label>
+                <textarea th:field="*{shortDescription}"></textarea>
+                <label>Mô tả chi tiết</label>
+                <textarea th:field="*{description}"></textarea>
+                <label class="checkbox-row">
+                    <input type="checkbox" th:field="*{featured}">
+                    <span>Sản phẩm nổi bật</span>
+                </label>
+                <button class="buy-button large" type="submit">Lưu sản phẩm</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Trang chủ TGDD Demo')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell">
+    <section class="hero-shell">
+        <aside class="side-ad side-ad-left">
+            <img th:src="@{/images/side-banner.png}" alt="Banner trái">
+        </aside>
+
+        <figure class="hero-main">
+            <img th:src="@{/images/hero-main.png}" alt="Banner chính">
+        </figure>
+
+        <aside class="side-ad side-ad-right">
+            <img th:src="@{/images/side-banner.png}" alt="Banner phải">
+        </aside>
+    </section>
+
+    <section class="viewed-section" id="viewedSection" style="display: none;">
+        <div class="section-header">
+            <h2>Sản phẩm đã xem</h2>
+            <a href="javascript:void(0)" id="clearViewedHistory">Xóa lịch sử</a>
+        </div>
+
+        <div class="viewed-card-wrap" id="viewedCardWrap"></div>
+    </section>
+
+    <section class="tgdd-deals-section">
+        <h2>Khuyến mãi online</h2>
+
+        <div class="tgdd-deals-wrap">
+            <ul class="tgdd-deals-tabs">
+                <li class="active">
+                    <a href="javascript:;">
+                        <img th:src="@{/images/flashsale-tab.png}" alt="Flash sale">
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <img th:src="@{/images/giam-den-50-plus-tab.png}" alt="Giảm đến 50%+">
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <img th:src="@{/images/online-only-tab.png}" alt="Online only">
+                    </a>
+                </li>
+                <li><a href="javascript:;">Điện Thoại</a></li>
+                <li><a href="javascript:;">Apple</a></li>
+                <li><a href="javascript:;">Laptop</a></li>
+                <li><a href="javascript:;">Phụ Kiện</a></li>
+                <li><a href="javascript:;">Đồng Hồ</a></li>
+                <li><a href="javascript:;">PC, Máy in</a></li>
+            </ul>
+
+            <div class="tgdd-deals-timeline">
+                <div class="time-box active">
+                    <span>Chỉ còn:</span>
+                    <div class="time-countdown">
+                        <b id="dealHour">00</b>
+                        <em>:</em>
+                        <b id="dealMinute">00</b>
+                        <em>:</em>
+                        <b id="dealSecond">12</b>
+                    </div>
+                </div>
+
+                <div class="time-box">
+                    <span>Sắp diễn ra</span>
+                    <strong>00:00</strong>
+                </div>
+
+                <div class="time-box">
+                    <span>Ngày mai</span>
+                    <strong>09:00</strong>
+                </div>
+
+                <div class="time-box">
+                    <span>Ngày mai</span>
+                    <strong>12:00</strong>
+                </div>
+
+                <div class="time-box">
+                    <span>Ngày mai</span>
+                    <strong>15:00</strong>
+                </div>
+            </div>
+
+            <div class="tgdd-deals-slider">
+                <button type="button" class="deal-arrow deal-arrow-left" id="dealPrevBtn">‹</button>
+
+                <div class="tgdd-deals-viewport" id="dealViewport">
+                    <div class="tgdd-deals-track">
+                        <article class="deal-card" th:each="item : ${flashSaleProducts}">
+                            <a th:href="@{/products/{id}(id=${item.id})}" class="deal-card-link">
+                                <div class="deal-image">
+                                    <img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}">
+                                </div>
+
+                                <h3 th:text="${item.name}">Tên sản phẩm</h3>
+
+                                <div class="deal-price"
+                                     th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'">
+                                    0đ
+                                </div>
+
+                                <div class="deal-old-row" th:if="${item.originalPrice != null}">
+                                    <span class="deal-old-price"
+                                          th:text="${#numbers.formatDecimal(item.originalPrice,0,'COMMA',0,'POINT')} + 'đ'">
+                                        0đ
+                                    </span>
+                                    <small class="deal-discount"
+                                           th:if="${item.discountPercent > 0}"
+                                           th:text="'-' + ${item.discountPercent} + '%'">
+                                        -10%
+                                    </small>
+                                </div>
+
+                                <div class="deal-stock">
+                                    <span class="deal-stock-fire">🔥</span>
+                                    <div class="deal-stock-bar">
+                                        <i th:style="'width:' + ${T(java.lang.Math).max(15, (item.stock * 100) / (item.stock + 5))} + '%'"></i>
+                                        <span th:text="'Còn ' + ${item.stock} + '/' + ${item.stock + 5} + ' suất'">
+                                            Còn 5/10 suất
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <form th:action="@{/cart/add/{id}(id=${item.id})}" method="post">
+                                <input type="hidden" name="quantity" value="1">
+                                <input type="hidden" name="redirectUrl" value="/">
+                                <button type="submit" class="deal-buy-btn">Mua ngay</button>
+                            </form>
+                        </article>
+                    </div>
+                </div>
+
+                <button type="button" class="deal-arrow deal-arrow-right" id="dealNextBtn">›</button>
+            </div>
+
+            <div class="deal-readmore-wrap">
+                <a href="javascript:;" class="deal-readmore-btn">Xem thêm sản phẩm</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-slide-banner">
+
+        <div class="slider">
+
+            <button class="prev">‹</button>
+
+            <div class="slides">
+
+                <img src="/images/banner1.png" alt="banner1">
+                <img src="/images/banner2.png" alt="banner2">
+                <img src="/images/banner3.png" alt="banner3">
+                <img src="/images/banner4.png" alt="banner4">
+                <img src="/images/banner5.png" alt="banner5">
+
+            </div>
+
+            <button class="next">›</button>
+
+        </div>
+
+    </section>
+    <section class="promo-accessories">
+        <h2>Mua Online - Hàng chuẩn, giá mê</h2>
+
+        <div class="mini-cards">
+            <div class="mini-card">
+                <img th:src="@{/images/promo-card-1.png}" alt="">
+                <p>Ưu đãi mở bán!</p>
+            </div>
+
+            <div class="mini-card">
+                <img th:src="@{/images/promo-card-2.png}" alt="">
+                <p>Trạm sạc màu bảo hành 2 năm</p>
+            </div>
+
+            <div class="mini-card">
+                <img th:src="@{/images/promo-card-3.png}" alt="">
+                <p>Bật nhạc cực đã ưu đãi 40%+</p>
+            </div>
+
+            <div class="mini-card accessory-card" th:each="item : ${latestProducts}">
+                <img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}">
+                <p th:text="${item.name}">Tên sản phẩm</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- MODAL CHỌN ĐỊA CHỈ -->
+<div class="location-modal-overlay" id="locationModal">
+    <div class="location-modal">
+        <div class="location-modal-header">
+            <h2>Chọn địa chỉ nhận hàng</h2>
+            <button type="button" class="close-modal-btn" id="closeLocationModal">×</button>
+        </div>
+
+        <div class="location-modal-body">
+            <div class="location-search-box">
+                <input type="text"
+                       id="addressInput"
+                       placeholder="Nhập địa chỉ (Tòa nhà, Số nhà, Tên đường,...) để gợi ý">
+                <span class="search-icon">⌕</span>
+            </div>
+
+            <div class="divider-with-text">
+                <span></span>
+                <p>Hoặc</p>
+                <span></span>
+            </div>
+
+            <div class="choose-address-row" id="chooseAddressRow">
+                <div>
+                    <div class="choose-address-title">Chọn địa chỉ</div>
+                    <div class="choose-address-subtitle">Nhập địa chỉ theo Tỉnh/TP, Phường/Xã</div>
+                </div>
+                <div class="choose-address-arrow">›</div>
+            </div>
+
+            <div class="location-illustration">
+                <div class="location-map-box">
+                    <div class="fake-browser-bar"></div>
+                    <div class="fake-map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POPUP QUẢNG CÁO -->
+<div id="promoPopup" class="promo-popup">
+    <div class="promo-popup-overlay"></div>
+
+    <div class="promo-popup-box">
+        <button type="button" class="promo-popup-close" id="closePromoPopup">×</button>
+
+        <a href="javascript:void(0)" class="promo-popup-link">
+            <img
+                    src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/1c/41/1c41fbe121e790d58a668883489127a1.png"
+                    alt="PMH KH MỚI 10% 500K">
+        </a>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const popup = document.getElementById("promoPopup");
+        const closeBtn = document.getElementById("closePromoPopup");
+        const overlay = document.querySelector(".promo-popup-overlay");
+
+        if (popup) {
+            setTimeout(() => {
+                popup.classList.add("show");
+                document.body.classList.add("popup-open");
+            }, 300);
+
+            function closePopup() {
+                popup.classList.remove("show");
+                document.body.classList.remove("popup-open");
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", closePopup);
+            }
+
+            if (overlay) {
+                overlay.addEventListener("click", closePopup);
+            }
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") {
+                    closePopup();
+                }
+            });
+        }
+
+        const locationModal = document.getElementById("locationModal");
+        const openLocationBtn = document.getElementById("openLocationModal");
+        const closeLocationBtn = document.getElementById("closeLocationModal");
+        const selectedLocation = document.getElementById("selectedLocation");
+        const addressInput = document.getElementById("addressInput");
+        const chooseAddressRow = document.getElementById("chooseAddressRow");
+
+        const savedLocation = localStorage.getItem("selectedLocation");
+        if (savedLocation && selectedLocation) {
+            selectedLocation.textContent = savedLocation;
+        }
+
+        function openLocationModal() {
+            if (locationModal) {
+                locationModal.classList.add("show");
+                document.body.classList.add("location-modal-open");
+            }
+        }
+
+        function closeLocationModalFn() {
+            if (locationModal) {
+                locationModal.classList.remove("show");
+                document.body.classList.remove("location-modal-open");
+            }
+        }
+
+        if (openLocationBtn) {
+            openLocationBtn.addEventListener("click", openLocationModal);
+        }
+
+        if (closeLocationBtn) {
+            closeLocationBtn.addEventListener("click", closeLocationModalFn);
+        }
+
+        if (locationModal) {
+            locationModal.addEventListener("click", function (e) {
+                if (e.target === locationModal) {
+                    closeLocationModalFn();
+                }
+            });
+        }
+
+        if (addressInput) {
+            addressInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    const value = addressInput.value.trim();
+                    if (value !== "") {
+                        if (selectedLocation) {
+                            selectedLocation.textContent = value;
+                        }
+                        localStorage.setItem("selectedLocation", value);
+                        closeLocationModalFn();
+                    }
+                }
+            });
+        }
+
+        if (chooseAddressRow) {
+            chooseAddressRow.addEventListener("click", function () {
+                const city = prompt("Nhập tỉnh/thành phố:", "Hồ Chí Minh");
+                if (city && city.trim() !== "") {
+                    if (selectedLocation) {
+                        selectedLocation.textContent = city.trim();
+                    }
+                    localStorage.setItem("selectedLocation", city.trim());
+                    closeLocationModalFn();
+                }
+            });
+        }
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                closeLocationModalFn();
+            }
+        });
+
+        const clearViewedHistory = document.getElementById("clearViewedHistory");
+        const viewedSection = document.getElementById("viewedSection");
+        const viewedCardWrap = document.getElementById("viewedCardWrap");
+
+        function formatPrice(price) {
+            if (price === null || price === undefined) return "";
+            return Number(price).toLocaleString("vi-VN") + "đ";
+        }
+
+        function getViewedProducts() {
+            return JSON.parse(localStorage.getItem("viewedProducts") || "[]");
+        }
+
+        function saveViewedProducts(products) {
+            localStorage.setItem("viewedProducts", JSON.stringify(products));
+        }
+
+        function removeViewedProduct(productId) {
+            const products = getViewedProducts().filter(item => String(item.id) !== String(productId));
+            saveViewedProducts(products);
+            renderViewedProducts();
+        }
+
+        function renderViewedProducts() {
+            if (!viewedSection || !viewedCardWrap) return;
+
+            const products = getViewedProducts();
+
+            if (!products.length) {
+                viewedSection.style.display = "none";
+                viewedCardWrap.innerHTML = "";
+                return;
+            }
+
+            viewedSection.style.display = "block";
+
+            viewedCardWrap.innerHTML = products.map(item => `
+                <div class="viewed-card">
+                    <button type="button" class="viewed-remove-btn" data-id="${item.id}">×</button>
+                    <a href="/products/${item.id}" style="display:flex;align-items:flex-start;gap:10px;">
+                        <img src="/images/${item.image}" alt="${item.name}">
+                        <div>
+                            <h3>${item.name}</h3>
+                            <div class="price red">${formatPrice(item.price)}</div>
+                        </div>
+                    </a>
+                </div>
+            `).join("");
+
+            document.querySelectorAll(".viewed-remove-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    removeViewedProduct(this.dataset.id);
+                });
+            });
+        }
+
+        if (clearViewedHistory) {
+            clearViewedHistory.addEventListener("click", function () {
+                localStorage.removeItem("viewedProducts");
+                renderViewedProducts();
+            });
+        }
+
+        renderViewedProducts();
+
+        const viewport = document.getElementById("dealViewport");
+        const prevBtn = document.getElementById("dealPrevBtn");
+        const nextBtn = document.getElementById("dealNextBtn");
+
+        if (viewport && prevBtn && nextBtn) {
+            prevBtn.addEventListener("click", function () {
+                viewport.scrollBy({
+                    left: -viewport.clientWidth * 0.9,
+                    behavior: "smooth"
+                });
+            });
+
+            nextBtn.addEventListener("click", function () {
+                viewport.scrollBy({
+                    left: viewport.clientWidth * 0.9,
+                    behavior: "smooth"
+                });
+            });
+        }
+
+        const hourEl = document.getElementById("dealHour");
+        const minuteEl = document.getElementById("dealMinute");
+        const secondEl = document.getElementById("dealSecond");
+
+        if (hourEl && minuteEl && secondEl) {
+            const endTime = new Date();
+            endTime.setHours(23, 59, 59, 999);
+
+            function updateDealCountdown() {
+                const now = new Date().getTime();
+                const diff = endTime.getTime() - now;
+
+                if (diff <= 0) {
+                    hourEl.textContent = "00";
+                    minuteEl.textContent = "00";
+                    secondEl.textContent = "00";
+                    return;
+                }
+
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                hourEl.textContent = String(hours).padStart(2, "0");
+                minuteEl.textContent = String(minutes).padStart(2, "0");
+                secondEl.textContent = String(seconds).padStart(2, "0");
+            }
+
+            updateDealCountdown();
+            setInterval(updateDealCountdown, 1000);
+        }
+    });
+</script>
+</body>
+</html>

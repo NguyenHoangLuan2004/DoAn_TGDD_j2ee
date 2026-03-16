@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Biểu mẫu danh mục')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow">
+    <section class="auth-box">
+        <div class="auth-panel">
+            <h1 th:text="${category.id == null ? 'Thêm danh mục' : 'Cập nhật danh mục'}"></h1>
+            <form th:action="@{/admin/categories/save}" th:object="${category}" method="post" class="auth-form">
+                <input type="hidden" th:field="*{id}">
+                <label>Tên danh mục</label>
+                <input th:field="*{name}">
+                <label>Bootstrap icon class</label>
+                <input th:field="*{iconClass}" placeholder="bi-phone">
+                <label>Thứ tự hiển thị</label>
+                <input type="number" th:field="*{displayOrder}">
+                <button class="buy-button large" type="submit">Lưu danh mục</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
