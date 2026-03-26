@@ -8,15 +8,38 @@
     <section class="category-shell">
         <div class="section-header">
             <h1>Kết quả tìm kiếm cho "<span th:text="${keyword}"></span>"</h1>
+            <p th:if="${resultCount != null}" class="muted" th:text="${resultCount} + ' sản phẩm phù hợp'">0 sản phẩm phù hợp</p>
         </div>
+
         <div class="category-grid">
             <article class="product-card" th:each="item : ${products}">
                 <a th:href="@{/products/{id}(id=${item.id})}">
-                    <div class="product-image"><img th:src="@{/images/{file}(file=${item.image})}"></div>
+                    <div class="product-image"><img th:src="@{/images/{file}(file=${item.image})}" alt=""></div>
                     <h3 th:text="${item.name}"></h3>
                     <div class="price red" th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
                 </a>
+
+                <p class="desc" th:text="${item.shortDescription}">Mô tả</p>
+
+                <div class="product-badges">
+                    <span class="badge badge-sale" th:if="${item.discountPercent > 0}" th:text="'Giảm ' + ${item.discountPercent} + '%'">Giảm 10%</span>
+                    <span class="badge" th:if="${item.inStock}">Còn hàng: <span th:text="${item.safeStock}">0</span></span>
+                    <span class="badge badge-muted" th:if="${!item.inStock}">Hết hàng</span>
+                </div>
+
+                <button class="buy-button"
+                        th:if="${item.inStock}"
+                        type="button"
+                        th:attr="data-product-id=${item.id}"
+                        onclick="window.addToCartAjax && window.addToCartAjax(this)">
+                    Thêm vào giỏ
+                </button>
+
+                <button class="buy-button disabled" th:if="${!item.inStock}" type="button" disabled>
+                    Hết hàng
+                </button>
             </article>
+
             <p th:if="${#lists.isEmpty(products)}">Không tìm thấy sản phẩm phù hợp.</p>
         </div>
     </section>

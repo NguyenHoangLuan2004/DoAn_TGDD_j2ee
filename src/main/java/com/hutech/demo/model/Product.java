@@ -32,6 +32,7 @@ public class Product {
 
     private String brand;
 
+    @Column(nullable = false)
     private Integer stock = 10;
 
     private boolean featured = false;
@@ -54,7 +55,7 @@ public class Product {
         this.description = description;
         this.image = image;
         this.brand = brand;
-        this.stock = stock;
+        this.stock = normalizeStock(stock);
         this.featured = featured;
         this.category = category;
     }
@@ -92,7 +93,12 @@ public class Product {
     }
 
     public Integer getStock() {
-        return stock == null ? 0 : stock;
+        return normalizeStock(stock);
+    }
+
+    @Transient
+    public int getSafeStock() {
+        return normalizeStock(stock);
     }
 
     public boolean isFeatured() {
@@ -112,6 +118,34 @@ public class Product {
 
     public String getFormattedBrand() {
         return brand == null ? "" : brand;
+    }
+
+    @Transient
+    public boolean isInStock() {
+        return getSafeStock() > 0;
+    }
+
+    @Transient
+    public boolean isLowStock() {
+        return getSafeStock() > 0 && getSafeStock() <= 5;
+    }
+
+    public boolean hasEnoughStock(int quantity) {
+        return quantity > 0 && getSafeStock() >= quantity;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
+            return;
+        }
+        setStock(getSafeStock() - quantity);
+    }
+
+    public void increaseStock(int quantity) {
+        if (quantity <= 0) {
+            return;
+        }
+        setStock(getSafeStock() + quantity);
     }
 
     public void setId(Long id) {
@@ -147,7 +181,7 @@ public class Product {
     }
 
     public void setStock(Integer stock) {
-        this.stock = stock;
+        this.stock = normalizeStock(stock);
     }
 
     public void setFeatured(boolean featured) {
@@ -156,5 +190,9 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    private int normalizeStock(Integer value) {
+        return value == null ? 0 : Math.max(value, 0);
     }
 }

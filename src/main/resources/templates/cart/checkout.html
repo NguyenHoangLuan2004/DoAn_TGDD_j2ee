@@ -8,41 +8,123 @@
     <section class="checkout-shell">
         <div class="checkout-card">
             <h1>Thông tin giao hàng</h1>
-            <form th:action="@{/order/submit}" method="post" class="checkout-form">
+
+            <p th:if="${checkoutError != null}" class="tgdd-auth-error" th:text="${checkoutError}"></p>
+            <p th:if="${voucherError != null}" class="tgdd-auth-error" th:text="${voucherError}"></p>
+            <p th:if="${successMessage != null}" class="tgdd-auth-success" th:text="${successMessage}"></p>
+            <p th:if="${#lists.isEmpty(cartItems)}" class="tgdd-auth-error">
+                Giỏ hàng đang trống. Vui lòng quay lại chọn sản phẩm.
+            </p>
+
+            <form th:if="${!#lists.isEmpty(cartItems)}"
+                  th:action="@{/order/submit}"
+                  method="post"
+                  class="checkout-form"
+                  id="checkoutForm">
+
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
                 <div class="form-row">
                     <label>Họ và tên</label>
-                    <input name="fullName" th:value="${user.fullName}" required>
+                    <input name="fullName" th:value="${user != null ? user.fullName : ''}" placeholder="Nhập họ và tên" required>
                 </div>
+
                 <div class="form-row">
                     <label>Số điện thoại</label>
-                    <input name="phone" placeholder="Nhập số điện thoại" required>
+                    <input name="phone" th:value="${user != null ? user.phone : ''}" placeholder="Nhập số điện thoại" required>
                 </div>
+
                 <div class="form-row">
                     <label>Địa chỉ nhận hàng</label>
                     <textarea name="address" placeholder="111, Phường An Đông, Thành phố Hồ Chí Minh" required></textarea>
                 </div>
+
                 <div class="form-row">
                     <label>Ghi chú</label>
                     <textarea name="note" placeholder="Lưu ý đặc biệt nếu có"></textarea>
                 </div>
+
                 <div class="form-row">
-                    <label>Điểm tích lũy hiện có</label>
-                    <input name="pointsUsed" type="number" min="0" th:attr="max=${availablePoints}" value="0">
-                    <small>Mỗi 1 điểm = 10.000đ. Hiện có <strong th:text="${availablePoints}"></strong> điểm.</small>
+                    <label>Điểm muốn sử dụng</label>
+                    <input id="pointsUsedInput" name="pointsUsed" type="number" min="0" th:attr="max=${availablePoints}" value="0">
+                    <small>Mỗi 1 điểm = 10.000đ. Hiện có <strong th:text="${availablePoints}">0</strong> điểm.</small>
+                </div>
+
+                <div class="form-row" th:if="${verifiedRedemptions != null and !#lists.isEmpty(verifiedRedemptions)}">
+                    <label>Voucher đã xác thực</label>
+                    <select name="redemptionId" id="redemptionIdSelect">
+                        <option value="">Không sử dụng voucher</option>
+                        <option th:each="redemption : ${verifiedRedemptions}"
+                                th:selected="${selectedRedemptionId != null and selectedRedemptionId == redemption.id}"
+                                th:value="${redemption.id}"
+                                th:attr="data-discount=${redemption.voucher.discountAmount != null ? redemption.voucher.discountAmount : 0},
+                                         data-min-order=${redemption.voucher.minOrderAmount != null ? redemption.voucher.minOrderAmount : 0}"
+                                th:text="${redemption.voucher.code} + ' - Giảm ' + ${#numbers.formatDecimal(redemption.voucher.discountAmount,0,'COMMA',0,'POINT')} + 'đ'"></option>
+                    </select>
+                    <small>Chỉ dùng được voucher đã xác thực OTP và chưa sử dụng.</small>
+                </div>
+
+                <div class="form-row">
+                    <label>Phương thức thanh toán</label>
+                    <select name="paymentMethod" id="paymentMethodSelect">
+                        <option value="COD" th:selected="${selectedPaymentMethod == null or selectedPaymentMethod == 'COD'}">Thanh toán khi nhận hàng</option>
+                        <option value="VNPAY" th:selected="${selectedPaymentMethod == 'VNPAY'}">VNPay</option>
+                    </select>
+                    <small>Nếu chọn VNPay, sau khi xác nhận đơn hệ thống sẽ chuyển bạn sang cổng thanh toán.</small>
                 </div>
 
                 <div class="order-summary-box">
                     <div class="summary-row">
                         <span>Tạm tính</span>
-                        <strong th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'"></strong>
+                        <strong id="subtotalText" th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
                     </div>
+
                     <div class="summary-row">
                         <span>Phí giao hàng</span>
-                        <strong>Miễn phí</strong>
+                        <strong id="shippingFeeText"
+                                th:text="${shippingFee != null && shippingFee > 0 ? #numbers.formatDecimal(shippingFee,0,'COMMA',0,'POINT') + 'đ' : 'Miễn phí'}">Miễn phí</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Điểm sử dụng</span>
+                        <strong id="pointsDiscountText">0đ</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Voucher</span>
+                        <strong id="voucherDiscountText">0đ</strong>
+                    </div>
+
+                    <div class="summary-row" style="font-size:18px; border-top:1px dashed #e5e7eb; padding-top:12px; margin-top:12px;">
+                        <span>Tổng thanh toán</span>
+                        <strong id="grandTotalText">0đ</strong>
                     </div>
                 </div>
 
-                <button type="submit" class="buy-button large">Xác nhận đặt hàng</button>
+                <div class="admin-table-wrap" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>SL</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${cartItems}">
+                            <td th:text="${item.product.name}">Tên sản phẩm</td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td th:text="${#numbers.formatDecimal(item.product.price * item.quantity,0,'COMMA',0,'POINT')} + 'đ'">0đ</td>
+                            <td th:text="${item.product.safeStock}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="buy-button large" id="submitOrderBtn">Xác nhận đặt hàng</button>
             </form>
         </div>
     </section>
@@ -50,5 +132,58 @@
 
 <div th:replace="~{layout :: footer}"></div>
 <div th:replace="~{layout :: scripts}"></div>
+
+<script th:inline="javascript">
+    const availablePoints = /*[[${availablePoints}]]*/ 0;
+    const subtotalValue = /*[[${subtotal}]]*/ 0;
+    const shippingFeeValue = /*[[${shippingFee}]]*/ 0;
+
+    const pointsInput = document.getElementById('pointsUsedInput');
+    const pointsDiscountText = document.getElementById('pointsDiscountText');
+    const voucherSelect = document.getElementById('redemptionIdSelect');
+    const voucherDiscountText = document.getElementById('voucherDiscountText');
+    const grandTotalText = document.getElementById('grandTotalText');
+    const shippingFeeText = document.getElementById('shippingFeeText');
+    const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+    const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+    function formatVnd(number) {
+        return new Intl.NumberFormat('vi-VN').format(Number(number || 0)) + 'đ';
+    }
+
+    function updateCheckoutPreview() {
+        let usedPoints = parseInt(pointsInput?.value || '0', 10);
+        if (isNaN(usedPoints) || usedPoints < 0) usedPoints = 0;
+        if (usedPoints > availablePoints) usedPoints = availablePoints;
+        if (pointsInput) pointsInput.value = usedPoints;
+
+        let voucherDiscount = 0;
+        if (voucherSelect && voucherSelect.value) {
+            const option = voucherSelect.options[voucherSelect.selectedIndex];
+            const minOrder = Number(option?.dataset.minOrder || 0);
+            if (subtotalValue >= minOrder) {
+                voucherDiscount = Number(option?.dataset.discount || 0);
+            }
+        }
+
+        const pointsDiscount = usedPoints * 10000;
+        let grandTotal = subtotalValue + shippingFeeValue - pointsDiscount - voucherDiscount;
+        if (grandTotal < 0) grandTotal = 0;
+
+        if (pointsDiscountText) pointsDiscountText.textContent = formatVnd(pointsDiscount);
+        if (voucherDiscountText) voucherDiscountText.textContent = formatVnd(voucherDiscount);
+        if (shippingFeeText) shippingFeeText.textContent = shippingFeeValue > 0 ? formatVnd(shippingFeeValue) : 'Miễn phí';
+        if (grandTotalText) grandTotalText.textContent = formatVnd(grandTotal);
+
+        if (submitOrderBtn && paymentMethodSelect) {
+            submitOrderBtn.textContent = paymentMethodSelect.value === 'VNPAY' ? 'Xác nhận & thanh toán VNPay' : 'Xác nhận đặt hàng';
+        }
+    }
+
+    if (pointsInput) pointsInput.addEventListener('input', updateCheckoutPreview);
+    if (voucherSelect) voucherSelect.addEventListener('change', updateCheckoutPreview);
+    if (paymentMethodSelect) paymentMethodSelect.addEventListener('change', updateCheckoutPreview);
+    updateCheckoutPreview();
+</script>
 </body>
 </html>

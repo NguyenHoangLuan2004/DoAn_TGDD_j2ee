@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">TGDD Demo</title>
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +20,6 @@
 
 <body>
 
-<!-- ================= HEADER ================= -->
 <div th:fragment="header">
 
     <div class="top-banner">
@@ -26,7 +27,6 @@
     </div>
 
     <header class="site-header">
-
         <div class="header-inner">
 
             <a th:href="@{/}" class="logo-link">
@@ -40,31 +40,102 @@
 
             <div class="header-actions">
 
-                <a class="action-chip" th:if="${currentUser == null}" th:href="@{/login}">
-                    <i class="bi bi-person"></i>
-                    <span>Đăng nhập</span>
+                <div class="header-user-group" th:if="${!isLoggedIn}">
+                    <a class="action-chip" th:href="@{/login}">
+                        <i class="bi bi-person"></i>
+                        <span class="chip-label">Đăng nhập</span>
+                    </a>
+                </div>
+
+                <div class="header-user-group" th:if="${isLoggedIn}">
+                    <span class="action-chip user-chip">
+                        <i class="bi bi-person-check"></i>
+                        <span class="chip-label chip-user-name"
+                              th:text="${currentUser.fullName}"
+                              th:title="${currentUser.fullName}">Người dùng</span>
+                    </span>
+                </div>
+
+                <a class="action-chip wishlist-chip" href="javascript:void(0)" id="wishlistHeaderBtn">
+                    <i class="bi bi-heart"></i>
+                    <span class="chip-label">Yêu thích</span>
+                    <b class="wishlist-count-badge" id="wishlistCount">0</b>
                 </a>
 
-                <a class="action-chip" th:if="${currentUser != null and !isAdmin}" th:href="@{/logout}">
-                    <i class="bi bi-person-check"></i>
-                    <span th:text="${currentUser.fullName}">Khách hàng</span>
-                </a>
-
-                <a class="action-chip" th:if="${currentUser != null and isAdmin}" th:href="@{/admin}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Quản trị</span>
-                </a>
-
-                <a class="action-chip" th:href="@{/cart}">
+                <a class="action-chip" th:href="@{/cart}" id="cartHeaderBtn">
                     <i class="bi bi-cart3"></i>
-                    <span th:text="'Giỏ hàng ' + ${cartCount}">Giỏ hàng</span>
+                    <span class="chip-label">Giỏ hàng</span>
+                    <b class="wishlist-count-badge" id="cartCountBadge" th:text="${cartCount}">0</b>
                 </a>
 
                 <button type="button" class="location-chip location-chip-btn" id="openLocationModal">
                     <i class="bi bi-geo-alt"></i>
-                    <span id="selectedLocation">Hồ Chí Minh</span>
+                    <span class="chip-label location-text" id="selectedLocation">Hồ Chí Minh</span>
                     <i class="bi bi-chevron-right"></i>
                 </button>
+
+                <div class="header-more-menu" id="headerMoreMenu">
+                    <button type="button" class="more-menu-btn" id="moreMenuBtn">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <span class="chip-label">Thêm</span>
+                        <i class="bi bi-chevron-down more-menu-caret"></i>
+                    </button>
+
+                    <div class="more-menu-dropdown" id="moreMenuDropdown">
+
+                        <div th:if="${!isLoggedIn}">
+                            <a class="more-menu-item" th:href="@{/login}">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span class="chip-label">Đăng nhập</span>
+                            </a>
+
+                            <a class="more-menu-item" th:href="@{/register}">
+                                <i class="bi bi-person-plus"></i>
+                                <span>Đăng ký</span>
+                            </a>
+                        </div>
+
+                        <div th:if="${isLoggedIn}">
+                            <div class="more-menu-user">
+                                <strong th:text="${currentUser.fullName}">Người dùng</strong>
+                                <small th:text="${currentUser.email}">email@email.com</small>
+                            </div>
+
+                            <div th:if="${isUser}">
+                                <div class="more-menu-item static-item">
+                                    <i class="bi bi-gift"></i>
+                                    <span th:text="'Điểm: ' + ${currentUser.points}">Điểm: 0</span>
+                                </div>
+
+                                <a class="more-menu-item" th:href="@{/rewards}">
+                                    <i class="bi bi-stars"></i>
+                                    <span>Đổi điểm thưởng</span>
+                                </a>
+                            </div>
+
+                            <a class="more-menu-item" th:if="${isAdmin}" th:href="@{/admin}">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Quản trị</span>
+                            </a>
+
+                            <a class="more-menu-item" th:if="${isManager}" th:href="@{/admin/products}">
+                                <i class="bi bi-box-seam"></i>
+                                <span>QL sản phẩm</span>
+                            </a>
+
+                            <form th:action="@{/logout}" method="post" class="more-menu-form">
+                                <input type="hidden"
+                                       th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}">
+                                <button type="submit" class="more-menu-item more-menu-logout">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Đăng xuất</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -76,20 +147,14 @@
                 <span th:text="${cat.name}">Danh mục</span>
             </a>
         </nav>
-
     </header>
-
 </div>
 
-<!-- ================= FOOTER ================= -->
 <div th:fragment="footer">
 
     <footer class="site-footer">
-
-        <!-- KEYWORDS -->
         <section class="keywords-section">
             <h2>Mọi người cũng tìm kiếm</h2>
-
             <div class="keyword-cloud">
                 <a href="#">laptop</a>
                 <a href="#">tai nghe</a>
@@ -142,10 +207,7 @@
             </div>
         </section>
 
-        <!-- FOOTER GRID -->
         <section class="footer-grid">
-
-            <!-- COL 1 -->
             <div class="footer-col">
                 <h4>Tổng đài hỗ trợ</h4>
                 <p>Gọi mua: <strong>1900 232 460</strong> (8:00 - 21:30)</p>
@@ -153,7 +215,6 @@
                 <p>Bảo hành: <strong>1900 232 464</strong> (8:00 - 21:00)</p>
             </div>
 
-            <!-- COL 2 -->
             <div class="footer-col">
                 <h4>Về công ty</h4>
                 <a href="https://mwg.vn" target="_blank" rel="nofollow">Giới thiệu công ty (MWG.vn)</a>
@@ -162,10 +223,10 @@
                 <a href="#" rel="nofollow">Tìm siêu thị (2.956 shop)</a>
             </div>
 
-            <!-- COL 3 -->
             <div class="footer-col">
                 <h4>Thông tin khác</h4>
-                <a href="#" rel="nofollow">Tích điểm Quà tặng VIP</a>
+                <a th:if="${isLoggedIn and isUser}" th:href="@{/rewards}">Đổi điểm thưởng</a>
+                <a th:if="${!isLoggedIn or !isUser}" href="#" rel="nofollow">Tích điểm Quà tặng VIP</a>
                 <a href="#" rel="nofollow">Lịch sử mua hàng</a>
                 <a href="#" rel="nofollow">Đăng ký bán hàng CTV chiết khấu cao</a>
                 <a href="#" rel="nofollow">Tìm hiểu về mua trả chậm</a>
@@ -175,48 +236,28 @@
                 <a href="#" rel="nofollow">Hướng dẫn mua online</a>
             </div>
 
-            <!-- COL 4 -->
             <div class="footer-col">
                 <h4>Website cùng tập đoàn</h4>
-
                 <div class="footer-badges">
-                    <span>topzone</span>
-                    <span>Điện Máy Xanh</span>
-                    <span>Bách Hóa Xanh</span>
-                    <span>An Khang</span>
-                    <span>AVAKids</span>
-                    <span>Việc làm</span>
-                    <span>EraBlue</span>
-                    <span>Thợ Xanh</span>
+                    <span>topzone</span><span>Điện Máy Xanh</span><span>Bách Hóa Xanh</span><span>An Khang</span>
+                    <span>AVAKids</span><span>Việc làm</span><span>EraBlue</span><span>Thợ Xanh</span>
                 </div>
-
                 <div class="footer-social">
-                    <p>
-                        <i class="bi bi-facebook"></i>
-                        <a href="https://www.facebook.com/thegioididongcom" target="_blank" rel="nofollow">3886.8k Fan</a>
-                    </p>
-
-                    <p>
-                        <i class="bi bi-youtube"></i>
-                        <a href="https://www.youtube.com/user/TGDDVideoReviews" target="_blank" rel="nofollow">876k Đăng ký</a>
-                    </p>
-
-                    <p>
-                        <i class="bi bi-chat-dots"></i>
-                        <a href="https://zalo.me/936590283559458736" target="_blank" rel="nofollow">Zalo TGDĐ</a>
-                    </p>
+                    <p><i class="bi bi-facebook"></i>
+                        <a href="https://www.facebook.com/thegioididongcom" target="_blank" rel="nofollow">3886.8k Fan</a></p>
+                    <p><i class="bi bi-youtube"></i>
+                        <a href="https://www.youtube.com/user/TGDDVideoReviews" target="_blank" rel="nofollow">876k Đăng ký</a></p>
+                    <p><i class="bi bi-chat-dots"></i>
+                        <a href="https://zalo.me/936590283559458736" target="_blank" rel="nofollow">Zalo TGDĐ</a></p>
                 </div>
-
                 <div class="footer-certify">
                     <span class="certify-blue">Đã thông báo</span>
                     <span class="certify-red">Khiếu nại</span>
                     <span class="certify-dark">DMCA PROTECTED</span>
                 </div>
             </div>
-
         </section>
 
-        <!-- COPYRIGHT -->
         <div class="copyright">
             © 2018. Công Ty Cổ Phần Đầu Tư Điện Máy Xanh. GPDKKD: 0303217354 do sở KH &amp; ĐT TP.HCM cấp ngày 02/01/2007.
             GPMXH: 21/GP-BTTTT do Bộ Thông Tin và Truyền Thông cấp ngày 11/01/2021.<br>
@@ -227,18 +268,14 @@
             Email: hotrotmdt@thegioididong.com.
             <a href="#" rel="nofollow">Xem chính sách sử dụng</a>
         </div>
-
     </footer>
 
-    <!-- ================= CHAT AI ================= -->
     <div class="chat-widget">
-
         <button class="chat-toggle" id="chatToggle" type="button">
             <img th:src="@{/images/ai-icon.png}" alt="AI icon">
         </button>
 
         <div class="chat-window" id="chatWindow">
-
             <div class="chat-header">
                 <div class="chat-title">
                     <img th:src="@{/images/ai-icon.png}" class="chat-avatar" alt="AI avatar">
@@ -257,25 +294,120 @@
             </div>
 
             <div class="chat-input-area">
-                <input id="chatInput"
-                       placeholder="Nhập câu hỏi..."
-                       onkeydown="if(event.key==='Enter'){sendChat()}">
-
+                <input id="chatInput" placeholder="Nhập câu hỏi...">
                 <button id="chatSend" type="button">
                     <i class="bi bi-send"></i>
                 </button>
             </div>
-
         </div>
-
     </div>
 
+    <div class="wishlist-preview" id="wishlistPreview">
+        <div class="wishlist-preview-header">
+            <strong>Sản phẩm yêu thích</strong>
+            <button type="button" id="closeWishlistPreview">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="wishlist-preview-body" id="wishlistPreviewBody">
+            <p>Chưa có sản phẩm yêu thích.</p>
+        </div>
+    </div>
 </div>
 
-<!-- ================= JS ================= -->
 <div th:fragment="scripts">
     <script th:src="@{/js/site.js}"></script>
-    <script th:src="@{/js/chat.js}"></script>
+    <script>
+        function tgddFormatVnd(value) {
+            const number = Number(value || 0);
+            return number.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function tgddCsrf() {
+            const token = document.querySelector('meta[name="_csrf"]')?.content;
+            const header = document.querySelector('meta[name="_csrf_header"]')?.content;
+            return token && header ? { token, header } : null;
+        }
+
+        async function tgddFetchCartSummary() {
+            try {
+                const res = await fetch('/cart/api/summary', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function tgddApplyCartSummary(summary) {
+            if (!summary) return;
+            const badge = document.getElementById('cartCountBadge');
+            if (badge && summary.cartCount !== undefined) {
+                badge.textContent = summary.cartCount;
+            }
+            document.querySelectorAll('[data-cart-count-text]').forEach(el => {
+                el.textContent = summary.cartCount ?? 0;
+            });
+            document.querySelectorAll('[data-cart-subtotal-text]').forEach(el => {
+                el.textContent = tgddFormatVnd(summary.subtotal ?? 0);
+            });
+        }
+
+        async function tgddAddToCart(productId, quantity, redirectUrl) {
+            const csrf = tgddCsrf();
+            const headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' };
+            if (csrf) headers[csrf.header] = csrf.token;
+            const body = new URLSearchParams();
+            body.set('quantity', quantity || 1);
+            if (redirectUrl) body.set('redirectUrl', redirectUrl);
+
+            const res = await fetch('/cart/api/add/' + productId, {
+                method: 'POST',
+                headers,
+                body: body.toString()
+            });
+
+            let data = null;
+            try { data = await res.json(); } catch (e) { data = null; }
+            if (data) tgddApplyCartSummary(data);
+            return { ok: res.ok, data };
+        }
+
+        async function tgddUpdateCartItem(productId, quantity) {
+            const csrf = tgddCsrf();
+            const headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' };
+            if (csrf) headers[csrf.header] = csrf.token;
+            const body = new URLSearchParams();
+            body.set('quantity', quantity || 1);
+
+            const res = await fetch('/cart/api/update/' + productId, {
+                method: 'POST',
+                headers,
+                body: body.toString()
+            });
+            let data = null;
+            try { data = await res.json(); } catch (e) { data = null; }
+            if (data) tgddApplyCartSummary(data);
+            return { ok: res.ok, data };
+        }
+
+        async function tgddRemoveCartItem(productId) {
+            const csrf = tgddCsrf();
+            const headers = { 'Accept': 'application/json' };
+            if (csrf) headers[csrf.header] = csrf.token;
+            const res = await fetch('/cart/api/remove/' + productId, { method: 'POST', headers });
+            let data = null;
+            try { data = await res.json(); } catch (e) { data = null; }
+            if (data) tgddApplyCartSummary(data);
+            return { ok: res.ok, data };
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const summary = await tgddFetchCartSummary();
+            tgddApplyCartSummary(summary);
+        });
+    </script>
 </div>
 
 </body>

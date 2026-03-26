@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Kết quả đổi điểm')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow-order">
+    <section class="success-card">
+        <div class="success-top">
+            <div class="checkmark" th:text="${redemption.status == 'VERIFIED' ? '✓' : '!'}">✓</div>
+            <h1 th:text="${redemption.status == 'VERIFIED' ? 'Đổi điểm thành công!' : 'Đổi điểm chưa hoàn tất'}">Kết quả</h1>
+            <p th:if="${redemption.status == 'VERIFIED'}">
+                Bạn đã đổi điểm thành công và nhận được voucher giảm giá. Voucher này có thể dùng ngay ở bước checkout.
+            </p>
+            <p th:if="${redemption.status != 'VERIFIED'}">
+                Yêu cầu đổi điểm chưa hoàn tất.
+            </p>
+        </div>
+
+        <div class="summary-total">
+            <div>
+                <span>Voucher</span>
+                <strong th:text="${redemption.voucherName}">Voucher</strong>
+            </div>
+
+            <div th:if="${redemption.code != null}">
+                <span>Mã voucher</span>
+                <strong th:text="${redemption.code}">VC50K</strong>
+            </div>
+
+            <div>
+                <span>Điểm đã dùng</span>
+                <strong th:text="${redemption.pointsUsed} + ' điểm'">0 điểm</strong>
+            </div>
+
+            <div>
+                <span>Giảm giá nhận được</span>
+                <strong th:text="${#numbers.formatDecimal(redemption.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+            </div>
+
+            <div>
+                <span>Trạng thái</span>
+                <strong th:text="${redemption.status}">VERIFIED</strong>
+            </div>
+
+            <div th:if="${redemption.usedAt != null}">
+                <span>Đã dùng lúc</span>
+                <strong th:text="${redemption.usedAt}">2026-03-16T15:00</strong>
+            </div>
+
+            <div th:if="${currentUser != null}">
+                <span>Điểm còn lại</span>
+                <strong th:text="${currentUser.points} + ' điểm'">0 điểm</strong>
+            </div>
+        </div>
+
+        <div class="success-actions">
+            <a class="buy-button large" th:href="@{/order/checkout}">Dùng voucher ở checkout</a>
+            <a class="secondary-button" th:href="@{/rewards}">Về trang đổi điểm</a>
+            <a class="secondary-button" th:href="@{/}">Về trang chủ</a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

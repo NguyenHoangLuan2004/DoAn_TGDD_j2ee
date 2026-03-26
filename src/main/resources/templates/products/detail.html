@@ -1,95 +1,193 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: head(${product.name})}"></head>
-<body>
+<body class="product-detail-page">
 <div th:replace="~{layout :: header}"></div>
 
 <main class="page-shell">
-    <section class="detail-shell">
-        <div class="detail-gallery">
-            <img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}">
+    <section class="detail-shell detail-shell-enhanced">
+        <div class="detail-left">
+            <div class="detail-gallery detail-gallery-enhanced">
+                <button type="button" class="wishlist-icon-btn" id="wishlistToggle"
+                        th:attr="data-id=${product.id},data-name=${product.name},data-image=${product.image},data-price=${product.price}">❤</button>
+                <img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}" id="mainProductImage">
+                <div class="detail-image-badges"><span>Chính hãng</span><span>Giao nhanh</span><span>Trả góp 0%</span></div>
+            </div>
+            <div class="detail-thumbs">
+                <button type="button" class="thumb-item active"><img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}"></button>
+                <button type="button" class="thumb-item"><img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}"></button>
+                <button type="button" class="thumb-item"><img th:src="@{/images/{file}(file=${product.image})}" th:alt="${product.name}"></button>
+            </div>
         </div>
 
-        <div class="detail-info">
-            <div class="badge-brand" th:text="${product.brand}"></div>
+        <div class="detail-info detail-info-enhanced">
+            <div class="detail-top-meta">
+                <div class="badge-brand" th:text="${product.brand}"></div>
+                <div class="detail-rating-row"><span>⭐ 4.9</span><span>•</span><span>Đã bán 1.2k+</span></div>
+            </div>
+
             <h1 th:text="${product.name}">Sản phẩm</h1>
-
-            <div class="detail-price-row">
-                <span class="price red large"
-                      th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'"></span>
-
-                <span class="old-price" th:if="${product.originalPrice != null}">
-                    <span th:text="${#numbers.formatDecimal(product.originalPrice,0,'COMMA',0,'POINT')} + 'đ'"></span>
-                    <em th:if="${product.discountPercent > 0}"
-                        th:text="'-' + ${product.discountPercent} + '%'"></em>
-                </span>
+            <div class="detail-price-box">
+                <div class="detail-price-row">
+                    <span class="price red large" th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'"></span>
+                    <span class="old-price" th:if="${product.originalPrice != null}">
+                        <span th:text="${#numbers.formatDecimal(product.originalPrice,0,'COMMA',0,'POINT')} + 'đ'"></span>
+                        <em th:if="${product.discountPercent > 0}" th:text="'-' + ${product.discountPercent} + '%'"></em>
+                    </span>
+                </div>
+                <div class="detail-price-note">Giá đã bao gồm VAT • Hỗ trợ trả góp • Ưu đãi thành viên</div>
             </div>
 
             <p class="detail-short" th:text="${product.shortDescription}"></p>
+            <div style="margin:0 0 14px; font-weight:600;" th:text="${inStock ? 'Kho còn ' + availableStock + ' sản phẩm' : 'Sản phẩm hiện tạm hết hàng'}">Kho còn hàng</div>
 
-            <ul class="feature-list">
+            <div class="detail-option-block"><label>Chọn màu</label><div class="option-chips"><button type="button" class="option-chip active">Vàng cát</button><button type="button" class="option-chip">Đen titan</button><button type="button" class="option-chip">Xám bạc</button></div></div>
+            <div class="detail-option-block"><label>Phiên bản</label><div class="option-chips"><button type="button" class="option-chip active">256GB</button><button type="button" class="option-chip">512GB</button><button type="button" class="option-chip">1TB</button></div></div>
+
+            <div class="detail-benefits">
+                <div class="benefit-card"><strong>Miễn phí giao hàng</strong><span>Nội thành TP.HCM cho đơn phù hợp</span></div>
+                <div class="benefit-card"><strong>Đổi trả dễ dàng</strong><span>Hỗ trợ theo chính sách tại cửa hàng</span></div>
+                <div class="benefit-card"><strong>Bảo hành toàn quốc</strong><span>Hệ thống cửa hàng rộng khắp</span></div>
+            </div>
+
+            <ul class="feature-list feature-list-enhanced">
                 <li>Hàng chính hãng - bảo hành toàn quốc</li>
                 <li>Tặng điểm tích lũy: mỗi 10.000đ = 1 điểm</li>
                 <li>Giao nhanh tại Hồ Chí Minh</li>
+                <li>Hỗ trợ thu cũ đổi mới và trả góp linh hoạt</li>
             </ul>
 
-            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" class="buy-form">
-                <label>Số lượng</label>
-                <input type="number" name="quantity" min="1" value="1">
-                <input type="hidden" th:name="redirectUrl" th:value="@{/products/{id}(id=${product.id})}">
-                <button type="submit" class="buy-button large">Thêm vào giỏ hàng</button>
+            <div class="detail-spec-highlight">
+                <div class="spec-item"><span>Màn hình</span><strong>6.8&quot; QHD+</strong></div>
+                <div class="spec-item"><span>Camera</span><strong>200MP AI</strong></div>
+                <div class="spec-item"><span>Pin</span><strong>5000mAh</strong></div>
+                <div class="spec-item"><span>Chip</span><strong>Flagship</strong></div>
+            </div>
+
+            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" class="buy-form enhanced-buy-form" id="detailBuyForm">
+                <div class="buy-qty-wrap">
+                    <label>Số lượng</label>
+                    <input type="number" name="quantity" min="1" th:attr="max=${availableStock}" value="1" id="detailQuantityInput">
+                </div>
+                <input type="hidden" name="redirectUrl" id="redirectUrlField" th:value="@{/products/{id}(id=${product.id})}">
+                <div class="detail-action-buttons">
+                    <button type="submit" class="buy-button large" th:disabled="${!inStock}">Thêm vào giỏ hàng</button>
+                    <button type="button" class="secondary-button detail-buy-now" onclick="buyNow()" th:disabled="${!inStock}">Mua ngay</button>
+                    <button type="button" class="secondary-button detail-share-btn" onclick="copyProductLink()">Chia sẻ</button>
+                </div>
             </form>
         </div>
     </section>
 
-    <section class="detail-description">
-        <h2>Mô tả sản phẩm</h2>
-        <p th:text="${product.description}"></p>
+    <section class="detail-description detail-tabs-section">
+        <div class="detail-tab-head">
+            <button type="button" class="detail-tab-btn active" data-tab="descTab">Mô tả</button>
+            <button type="button" class="detail-tab-btn" data-tab="specTab">Thông số kỹ thuật</button>
+            <button type="button" class="detail-tab-btn" data-tab="reviewTab">Đánh giá</button>
+        </div>
+        <div class="detail-tab-content active" id="descTab"><h2>Mô tả sản phẩm</h2><p th:text="${product.description}"></p></div>
+        <div class="detail-tab-content" id="specTab"><h2>Thông số kỹ thuật nổi bật</h2><div class="spec-table-demo"><div><span>Màn hình</span><strong>AMOLED / LTPO / Tần số quét cao</strong></div><div><span>Camera sau</span><strong>200MP + AI Camera</strong></div><div><span>Vi xử lý</span><strong>Dòng chip cao cấp</strong></div><div><span>Bộ nhớ</span><strong>Tùy chọn 256GB / 512GB / 1TB</strong></div><div><span>Pin</span><strong>5000mAh, sạc nhanh</strong></div><div><span>Kết nối</span><strong>5G / Wi-Fi / Bluetooth / NFC</strong></div></div></div>
+        <div class="detail-tab-content" id="reviewTab"><h2>Đánh giá khách hàng</h2><div class="review-summary-demo"><div class="review-score">4.9/5</div><div class="review-note">Sản phẩm được khách hàng đánh giá cao về thiết kế, hiệu năng và camera.</div></div></div>
     </section>
 
-    <section class="related-section">
-        <div class="section-header">
-            <h2>Sản phẩm liên quan</h2>
-        </div>
-
-        <div class="category-grid">
-            <article class="product-card" th:each="item : ${relatedProducts}" th:if="${item.id != product.id}">
+    <section class="related-section related-section-enhanced">
+        <div class="section-header"><h2>Sản phẩm liên quan</h2><a th:href="@{/products/category/{id}(id=${product.category.id})}" th:if="${product.category != null}">Xem thêm</a></div>
+        <div class="category-grid related-grid-enhanced">
+            <article class="product-card related-product-card" th:each="item : ${relatedProducts}" th:if="${item.id != product.id}">
+                <button type="button" class="mini-wishlist-btn" th:attr="data-id=${item.id},data-name=${item.name},data-image=${item.image},data-price=${item.price}">❤</button>
                 <a th:href="@{/products/{id}(id=${item.id})}">
-                    <div class="product-image">
-                        <img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}">
-                    </div>
+                    <div class="product-image"><img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}"></div>
                     <h3 th:text="${item.name}"></h3>
-                    <div class="price red"
-                         th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
+                    <p class="desc">Thiết kế đẹp, hiệu năng ổn định, phù hợp nhu cầu hằng ngày</p>
+                    <div class="price red" th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
                 </a>
             </article>
         </div>
     </section>
 </main>
 
+<div class="detail-sticky-bar">
+    <div class="detail-sticky-info"><strong th:text="${product.name}">Sản phẩm</strong><span th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + 'đ'"></span></div>
+    <div class="detail-sticky-actions"><button type="button" class="secondary-button" onclick="copyProductLink()">Chia sẻ</button><button type="button" class="buy-button" onclick="buyNow()" th:disabled="${!inStock}">Mua ngay</button></div>
+</div>
+
 <div th:replace="~{layout :: footer}"></div>
 <div th:replace="~{layout :: scripts}"></div>
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
-        const product = {
-            id: /*[[${product.id}]]*/ 0,
-            name: /*[[${product.name}]]*/ "",
-            image: /*[[${product.image}]]*/ "",
-            price: /*[[${product.price}]]*/ 0
-        };
-
+        const product = { id: /*[[${product.id}]]*/ 0, name: /*[[${product.name}]]*/ "", image: /*[[${product.image}]]*/ "", price: /*[[${product.price}]]*/ 0 };
         let viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
-
         viewedProducts = viewedProducts.filter(item => String(item.id) !== String(product.id));
         viewedProducts.unshift(product);
-
-        if (viewedProducts.length > 6) {
-            viewedProducts = viewedProducts.slice(0, 6);
-        }
-
+        if (viewedProducts.length > 6) viewedProducts = viewedProducts.slice(0, 6);
         localStorage.setItem("viewedProducts", JSON.stringify(viewedProducts));
+
+        const form = document.getElementById('detailBuyForm');
+        form?.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const quantityInput = document.getElementById('detailQuantityInput');
+            const quantity = Number(quantityInput?.value || 1);
+            const redirectUrl = document.getElementById('redirectUrlField')?.value || window.location.pathname;
+            const result = await tgddAddToCart(product.id, quantity, redirectUrl);
+            alert(result.data?.message || (result.ok ? 'Đã thêm vào giỏ hàng' : 'Không thể thêm vào giỏ hàng'));
+        });
+
+        initWishlistButtons(); initDetailTabs(); initOptionChips(); syncMainWishlistState();
     });
+
+    function getWishlist() { return JSON.parse(localStorage.getItem("wishlistProducts") || "[]"); }
+    function saveWishlist(items) { localStorage.setItem("wishlistProducts", JSON.stringify(items)); }
+    function toggleWishlistByData(button) {
+        const item = { id: button.dataset.id, name: button.dataset.name, image: button.dataset.image, price: button.dataset.price };
+        let wishlist = getWishlist();
+        const exists = wishlist.some(p => String(p.id) === String(item.id));
+        wishlist = exists ? wishlist.filter(p => String(p.id) !== String(item.id)) : [item, ...wishlist];
+        button.classList.toggle("active", !exists);
+        saveWishlist(wishlist); syncMiniWishlistStates(); syncMainWishlistState();
+    }
+    function initWishlistButtons() {
+        const mainBtn = document.getElementById("wishlistToggle");
+        if (mainBtn) mainBtn.addEventListener("click", function () { toggleWishlistByData(mainBtn); });
+        document.querySelectorAll(".mini-wishlist-btn").forEach(btn => btn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); toggleWishlistByData(btn); }));
+        syncMiniWishlistStates();
+    }
+    function syncMainWishlistState() {
+        const mainBtn = document.getElementById("wishlistToggle"); if (!mainBtn) return;
+        const exists = getWishlist().some(p => String(p.id) === String(mainBtn.dataset.id));
+        mainBtn.classList.toggle("active", exists);
+    }
+    function syncMiniWishlistStates() {
+        const wishlist = getWishlist();
+        document.querySelectorAll(".mini-wishlist-btn").forEach(btn => btn.classList.toggle("active", wishlist.some(p => String(p.id) === String(btn.dataset.id))));
+    }
+    function copyProductLink() { navigator.clipboard.writeText(window.location.href).then(function () { alert("Đã copy link sản phẩm"); }); }
+    async function buyNow() {
+        document.getElementById("redirectUrlField").value = "/cart";
+        const productId = document.getElementById("wishlistToggle")?.dataset.id;
+        const quantity = Number(document.getElementById('detailQuantityInput')?.value || 1);
+        const result = await tgddAddToCart(productId, quantity, '/cart');
+        if (result.ok) window.location.href = '/cart';
+        else alert(result.data?.message || 'Không thể thêm vào giỏ hàng');
+    }
+    function initDetailTabs() {
+        const tabButtons = document.querySelectorAll(".detail-tab-btn");
+        const tabContents = document.querySelectorAll(".detail-tab-content");
+        tabButtons.forEach(btn => btn.addEventListener("click", function () {
+            tabButtons.forEach(b => b.classList.remove("active"));
+            tabContents.forEach(c => c.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById(btn.dataset.tab).classList.add("active");
+        }));
+    }
+    function initOptionChips() {
+        document.querySelectorAll(".option-chips").forEach(group => group.querySelectorAll(".option-chip").forEach(btn => btn.addEventListener("click", function () {
+            group.querySelectorAll(".option-chip").forEach(item => item.classList.remove("active")); btn.classList.add("active");
+        })));
+        document.querySelectorAll(".detail-thumbs").forEach(group => group.querySelectorAll(".thumb-item").forEach(btn => btn.addEventListener("click", function () {
+            group.querySelectorAll(".thumb-item").forEach(item => item.classList.remove("active")); btn.classList.add("active");
+        })));
+    }
 </script>
 </body>
 </html>

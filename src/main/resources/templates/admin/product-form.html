@@ -1,46 +1,239 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout :: head('Biểu mẫu sản phẩm')}"></head>
-<body>
-<div th:replace="~{layout :: header}"></div>
+<head th:replace="~{layout :: head(${product.id == null ? 'Thêm sản phẩm' : 'Cập nhật sản phẩm'})}"></head>
+<body class="admin-dashboard-page admin-subpage">
 
-<main class="page-shell narrow">
-    <section class="auth-box">
-        <div class="auth-panel wide">
-            <h1 th:text="${product.id == null ? 'Thêm sản phẩm' : 'Cập nhật sản phẩm'}"></h1>
-            <form th:action="@{/admin/products/save}" th:object="${product}" method="post" class="auth-form grid-form">
-                <input type="hidden" th:field="*{id}">
-                <label>Tên sản phẩm</label>
-                <input th:field="*{name}">
-                <label>Giá bán</label>
-                <input type="number" th:field="*{price}">
-                <label>Giá gốc</label>
-                <input type="number" th:field="*{originalPrice}">
-                <label>Thương hiệu</label>
-                <input th:field="*{brand}">
-                <label>Tồn kho</label>
-                <input type="number" th:field="*{stock}">
-                <label>Ảnh (file trong /static/images)</label>
-                <input th:field="*{image}">
-                <label>Danh mục</label>
-                <select th:field="*{category.id}">
-                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
-                </select>
-                <label>Mô tả ngắn</label>
-                <textarea th:field="*{shortDescription}"></textarea>
-                <label>Mô tả chi tiết</label>
-                <textarea th:field="*{description}"></textarea>
-                <label class="checkbox-row">
-                    <input type="checkbox" th:field="*{featured}">
-                    <span>Sản phẩm nổi bật</span>
-                </label>
-                <button class="buy-button large" type="submit">Lưu sản phẩm</button>
+<main class="admin-dashboard-wrapper">
+    <div class="admin-dashboard-shell">
+
+        <aside class="admin-sidebar">
+            <div>
+                <a th:href="@{/admin}" class="admin-sidebar-brand">
+                    <img th:src="@{/images/logo-tgdd.png}" alt="Thế Giới Di Động">
+                </a>
+
+                <nav class="admin-sidebar-nav">
+                    <a th:href="@{/admin}">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Bảng điều hành</span>
+                    </a>
+                    <a th:href="@{/admin/products}" class="active">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <a th:href="@{/}">
+                        <i class="bi bi-house-door"></i>
+                        <span>Về trang chủ</span>
+                    </a>
+                    <a th:href="@{/admin/products/add}" class="active">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Thêm sản phẩm</span>
+                    </a>
+                </nav>
+            </div>
+
+            <form th:action="@{/logout}" method="post" class="admin-sidebar-logout">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <button type="submit">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                </button>
             </form>
-        </div>
-    </section>
+        </aside>
+
+        <section class="admin-dashboard-main">
+
+            <div class="admin-topbar">
+                <label class="admin-top-search admin-table-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Biểu mẫu sản phẩm..." data-admin-table-target="#noTableSearch">
+                </label>
+
+                <div class="admin-topbar-actions">
+                    <a th:href="@{/admin}" class="admin-top-link">
+                        <i class="bi bi-house-door"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a th:href="@{/admin/products}" class="admin-top-link is-active">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}" class="admin-top-link">
+                        <i class="bi bi-grid"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <div class="admin-top-user" th:if="${currentUser != null}">
+                        <div>
+                            <strong th:text="${currentUser.fullName}">Quản trị viên</strong>
+                            <span>Quản trị viên</span>
+                        </div>
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-page-head">
+                <div>
+                    <p class="admin-overline">Biểu mẫu sản phẩm</p>
+                    <h1 th:text="${product.id == null ? 'Thêm sản phẩm mới' : 'Cập nhật sản phẩm'}">Thêm sản phẩm mới</h1>
+                    <p th:if="${currentUser != null}">Thao tác bởi <strong th:text="${currentUser.fullName}">Người dùng</strong>. Điền thông tin sản phẩm, hệ thống sẽ hiển thị bản xem trước ở cột bên phải.</p>
+                </div>
+
+                <div class="admin-page-actions">
+                    <a class="admin-ghost-btn" th:href="@{/admin/products}">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Quay lại danh sách</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="admin-form-layout">
+                <section class="admin-form-panel">
+                    <div class="admin-table-headline">
+                        <div>
+                            <h2>Thông tin sản phẩm</h2>
+                            <p>Nhập các trường bắt buộc và kiểm tra bản xem trước trước khi lưu.</p>
+                        </div>
+                    </div>
+
+                    <p class="admin-form-error" th:if="${error}" th:text="${error}"></p>
+
+                    <form th:action="@{/admin/products/save}" th:object="${product}" method="post" class="admin-modern-form">
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="admin-form-grid-2">
+                            <div class="admin-field">
+                                <label for="name">Tên sản phẩm</label>
+                                <input id="name" th:field="*{name}" placeholder="Nhập tên sản phẩm">
+                                <small class="admin-form-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                            </div>
+
+                            <div class="admin-field">
+                                <label for="brand">Thương hiệu</label>
+                                <input id="brand" th:field="*{brand}" placeholder="Ví dụ: Apple, Samsung, Xiaomi">
+                            </div>
+                        </div>
+
+                        <div class="admin-form-grid-2">
+                            <div class="admin-field">
+                                <label for="price">Giá bán</label>
+                                <input id="price" type="number" min="0" step="1000" th:field="*{price}" placeholder="Nhập giá bán">
+                                <small class="admin-form-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></small>
+                            </div>
+
+                            <div class="admin-field">
+                                <label for="originalPrice">Giá gốc</label>
+                                <input id="originalPrice" type="number" min="0" step="1000" th:field="*{originalPrice}" placeholder="Nhập giá gốc">
+                            </div>
+                        </div>
+
+                        <div class="admin-form-grid-2">
+                            <div class="admin-field">
+                                <label for="stock">Tồn kho</label>
+                                <input id="stock" type="number" min="0" step="1" th:field="*{stock}" placeholder="Nhập số lượng tồn">
+                                <small class="admin-form-error" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}"></small>
+                                <small class="admin-field-help">Sản phẩm có tồn kho 0 sẽ hiện trạng thái hết hàng ở trang khách.</small>
+                            </div>
+
+                            <div class="admin-field">
+                                <label for="category">Danh mục</label>
+                                <select id="category" th:field="*{category.id}">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="image">Ảnh sản phẩm (file trong /static/images)</label>
+                            <input id="image" th:field="*{image}" placeholder="Ví dụ: iphone-16-pro.png" data-product-image-input>
+                            <small class="admin-field-help">Chỉ cần nhập tên file ảnh đã có sẵn trong thư mục images của dự án.</small>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="shortDescription">Mô tả ngắn</label>
+                            <textarea id="shortDescription" th:field="*{shortDescription}" rows="3" placeholder="Nhập mô tả ngắn của sản phẩm"></textarea>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="description">Mô tả chi tiết</label>
+                            <textarea id="description" th:field="*{description}" rows="5" placeholder="Nhập mô tả chi tiết của sản phẩm"></textarea>
+                        </div>
+
+                        <label class="admin-checkbox-card">
+                            <input type="checkbox" th:field="*{featured}">
+                            <span>Sản phẩm nổi bật - hiển thị ưu tiên ở trang chủ và khối đề xuất.</span>
+                        </label>
+
+                        <div class="admin-form-footer">
+                            <a class="admin-ghost-btn" th:href="@{/admin/products}">
+                                <i class="bi bi-x-circle"></i>
+                                <span>Hủy</span>
+                            </a>
+                            <button class="admin-primary-btn" type="submit">
+                                <i class="bi bi-floppy"></i>
+                                <span>Lưu sản phẩm</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <aside class="admin-preview-panel">
+                    <div class="admin-table-headline">
+                        <div>
+                            <h2>Xem trước sản phẩm</h2>
+                            <p>Khối này cập nhật tự động theo dữ liệu bạn đang nhập.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-preview-card">
+                        <div class="admin-preview-visual">
+                            <img id="productPreviewImage" src="/images/logo-tgdd.png" alt="Xem trước sản phẩm" data-product-image-preview>
+                        </div>
+
+                        <div>
+                            <h3 class="admin-preview-title" id="adminProductNamePreview" th:text="${product.name != null and !#strings.isEmpty(product.name) ? product.name : 'Tên sản phẩm'}">Tên sản phẩm</h3>
+                            <p class="admin-preview-subtitle" id="adminProductDescriptionPreview"
+                               th:text="${product.shortDescription != null and !#strings.isEmpty(product.shortDescription) ? product.shortDescription : 'Mô tả ngắn sản phẩm sẽ hiển thị tại đây để bạn xem trước trước khi lưu.'}">
+                                Mô tả ngắn sản phẩm sẽ hiển thị tại đây để bạn xem trước trước khi lưu.
+                            </p>
+                        </div>
+
+                        <div class="admin-preview-meta">
+                            <div>
+                                <span>Giá bán</span>
+                                <strong id="adminProductPricePreview"
+                                        th:text="${product.price > 0 ? #numbers.formatDecimal(product.price,0,'COMMA',0,'POINT') + 'đ' : 'Chưa nhập giá'}">Chưa nhập giá</strong>
+                            </div>
+                            <div>
+                                <span>Thương hiệu</span>
+                                <strong id="adminProductBrandPreview"
+                                        th:text="${product.brand != null and !#strings.isEmpty(product.brand) ? product.brand : 'Chưa có'}">Chưa có</strong>
+                            </div>
+                            <div>
+                                <span>Danh mục</span>
+                                <strong id="adminProductCategoryPreview"
+                                        th:text="${product.category != null and product.category.name != null ? product.category.name : 'Chưa chọn'}">Chưa chọn</strong>
+                            </div>
+                            <div>
+                                <span>Tồn kho</span>
+                                <strong th:text="${product.safeStock} + ' sản phẩm'">0 sản phẩm</strong>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </div>
 </main>
 
-<div th:replace="~{layout :: footer}"></div>
-<div th:replace="~{layout :: scripts}"></div>
+<script th:src="@{/js/site.js}"></script>
 </body>
 </html>

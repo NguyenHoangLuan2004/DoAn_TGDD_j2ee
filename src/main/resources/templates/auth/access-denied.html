@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Không có quyền truy cập')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow-order">
+  <section class="success-card">
+    <div class="success-top">
+      <div class="checkmark" style="background:#ff4d4f;">!</div>
+      <h1>Bạn không có quyền truy cập</h1>
+      <p>
+        Tài khoản hiện tại không được phép vào khu vực này.
+        Vui lòng quay lại hoặc đăng nhập bằng tài khoản phù hợp.
+      </p>
+    </div>
+
+    <div class="summary-total">
+      <div th:if="${currentUser != null}">
+        <span>Tài khoản hiện tại</span>
+        <strong th:text="${currentUser.fullName + ' - ' + currentUser.role}">Người dùng - USER</strong>
+      </div>
+      <div th:if="${currentUser == null}">
+        <span>Trạng thái</span>
+        <strong>Chưa đăng nhập</strong>
+      </div>
+    </div>
+
+    <div class="success-actions">
+      <a class="buy-button large" th:href="@{/}">Về trang chủ</a>
+      <a class="secondary-button" th:if="${currentUser == null}" th:href="@{/login}">Đăng nhập</a>
+      <a class="secondary-button" th:if="${currentUser != null}" th:href="@{/products/category/1}">Tiếp tục mua sắm</a>
+    </div>
+  </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

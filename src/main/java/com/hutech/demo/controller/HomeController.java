@@ -1,9 +1,12 @@
 package com.hutech.demo.controller;
 
+import com.hutech.demo.model.Product;
 import com.hutech.demo.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @Controller
 public class HomeController {
@@ -16,9 +19,14 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("featuredProducts", productService.getFeaturedProducts());
-        model.addAttribute("latestProducts", productService.getLatestProducts());
-        model.addAttribute("flashSaleProducts", productService.getFeaturedProducts());
+        List<Product> featuredProducts = productService.getFeaturedProducts();
+        List<Product> latestProducts = productService.getLatestProducts();
+
+        model.addAttribute("featuredProducts", featuredProducts);
+        model.addAttribute("latestProducts", latestProducts);
+        model.addAttribute("flashSaleProducts", featuredProducts);
+        model.addAttribute("featuredCount", featuredProducts.size());
+        model.addAttribute("latestCount", latestProducts.size());
         model.addAttribute("popularKeywords", new String[]{
                 "laptop", "tai nghe", "đồng hồ", "macbook", "iphone 15", "iphone 16e",
                 "loa bluetooth", "tablet", "smartwatch", "garmin", "máy in", "điện thoại xiaomi"

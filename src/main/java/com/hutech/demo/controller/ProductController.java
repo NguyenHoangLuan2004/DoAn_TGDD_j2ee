@@ -8,6 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
 public class ProductController {
 
@@ -23,8 +26,10 @@ public class ProductController {
     public String categoryPage(@PathVariable Long id, Model model) {
         Category category = categoryService.getById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục"));
+        List<Product> products = productService.getByCategory(id);
         model.addAttribute("category", category);
-        model.addAttribute("products", productService.getByCategory(id));
+        model.addAttribute("products", products);
+        model.addAttribute("availableCount", products.stream().filter(Product::isInStock).count());
         return "products/category";
     }
 
@@ -32,15 +37,26 @@ public class ProductController {
     public String productDetail(@PathVariable Long id, Model model) {
         Product product = productService.getById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+
+        List<Product> relatedProducts = productService.getByCategory(product.getCategory().getId()).stream()
+                .filter(item -> !item.getId().equals(product.getId()))
+                .limit(8)
+                .collect(Collectors.toList());
+
         model.addAttribute("product", product);
-        model.addAttribute("relatedProducts", productService.getByCategory(product.getCategory().getId()));
+        model.addAttribute("relatedProducts", relatedProducts);
+        model.addAttribute("inStock", product.isInStock());
+        model.addAttribute("availableStock", product.getSafeStock());
         return "products/detail";
     }
 
     @GetMapping("/search")
     public String search(@RequestParam(name = "q", required = false) String keyword, Model model) {
-        model.addAttribute("keyword", keyword == null ? "" : keyword);
-        model.addAttribute("products", productService.search(keyword == null ? "" : keyword));
+        String safeKeyword = keyword == null ? "" : keyword.trim();
+        List<Product> products = productService.search(safeKeyword);
+        model.addAttribute("keyword", safeKeyword);
+        model.addAttribute("products", products);
+        model.addAttribute("resultCount", products.size());
         return "products/search";
     }
 }

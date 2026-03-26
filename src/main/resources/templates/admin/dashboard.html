@@ -1,30 +1,290 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: head('Quản trị demo')}"></head>
-<body>
-<div th:replace="~{layout :: header}"></div>
+<body class="admin-dashboard-page">
 
-<main class="page-shell">
-    <section class="admin-shell">
-        <div class="section-header">
-            <h1>Khu vực quản trị</h1>
-            <a th:href="@{/logout}">Đăng xuất</a>
-        </div>
+<main class="admin-dashboard-wrapper">
+    <div class="admin-dashboard-shell">
+        <aside class="admin-sidebar">
+            <div>
+                <a th:href="@{/admin}" class="admin-sidebar-brand">
+                    <img th:src="@{/images/logo-tgdd.png}" alt="Thế Giới Di Động">
+                </a>
 
-        <div class="admin-cards">
-            <a class="admin-card" th:href="@{/admin/products}">
-                <strong th:text="${productCount}"></strong>
-                <span>Sản phẩm</span>
-            </a>
-            <a class="admin-card" th:href="@{/admin/categories}">
-                <strong th:text="${categoryCount}"></strong>
-                <span>Danh mục</span>
-            </a>
-        </div>
-    </section>
+                <nav class="admin-sidebar-nav">
+                    <a th:href="@{/admin}" class="active">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Bảng điều hành</span>
+                    </a>
+                    <a th:href="@{/admin/products}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <a th:href="@{/}">
+                        <i class="bi bi-house-door"></i>
+                        <span>Về trang chủ</span>
+                    </a>
+                    <a href="#adminRecentOrders">
+                        <i class="bi bi-receipt"></i>
+                        <span>Đơn hàng gần đây</span>
+                    </a>
+                    <a href="#adminKeywords">
+                        <i class="bi bi-stars"></i>
+                        <span>Từ khóa nổi bật</span>
+                    </a>
+                </nav>
+            </div>
+
+            <form th:action="@{/logout}" method="post" class="admin-sidebar-logout">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <button type="submit">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </form>
+        </aside>
+
+        <section class="admin-dashboard-main">
+            <div class="admin-topbar">
+                <label class="admin-top-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Bạn tìm gì trong quản trị...">
+                </label>
+
+                <div class="admin-topbar-actions">
+                    <a th:href="@{/admin/products}" class="admin-top-link">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}" class="admin-top-link">
+                        <i class="bi bi-grid"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <div class="admin-top-user" th:if="${currentUser != null}">
+                        <div>
+                            <strong th:text="${currentUser.fullName}">Quản trị viên</strong>
+                            <span>Quản trị viên</span>
+                        </div>
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-hero-row">
+                <div>
+                    <p class="admin-overline">Dashboard quản trị</p>
+                    <h1>Xin chào, <span th:text="${currentUser != null ? currentUser.fullName : 'Quản trị viên'}">Quản trị viên</span></h1>
+                    <p class="admin-hero-note">Theo dõi nhanh sản phẩm, doanh thu, người dùng và hoạt động gần đây của cửa hàng ngay trên một màn hình.</p>
+                </div>
+                <div class="admin-hero-badge">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <div>
+                        <strong th:text="${orderCount}">0</strong>
+                        <span>Đơn hàng đã ghi nhận</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-stat-grid">
+                <a class="admin-stat-card admin-stat-card--gold" th:href="@{/admin/products}">
+                    <div>
+                        <span>Tổng sản phẩm</span>
+                        <strong th:text="${productCount}">0</strong>
+                        <small>Cập nhật danh sách sản phẩm đang bán</small>
+                    </div>
+                    <i class="bi bi-box-seam"></i>
+                </a>
+
+                <div class="admin-stat-card admin-stat-card--amber">
+                    <div>
+                        <span>Tổng thu</span>
+                        <strong th:text="${revenueCompact}">0đ</strong>
+                        <small th:text="${revenueText}">0đ</small>
+                    </div>
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+
+                <a class="admin-stat-card admin-stat-card--light" th:href="@{/admin/categories}">
+                    <div>
+                        <span>Danh mục</span>
+                        <strong th:text="${categoryCount}">0</strong>
+                        <small>Quản lý nhóm sản phẩm</small>
+                    </div>
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </a>
+
+                <div class="admin-stat-card admin-stat-card--dark">
+                    <div>
+                        <span>Người dùng</span>
+                        <strong th:text="${userCount}">0</strong>
+                        <small>Tài khoản đã đăng ký</small>
+                    </div>
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+
+            <div class="admin-stat-grid" style="margin-top:18px;">
+                <div class="admin-stat-card admin-stat-card--light">
+                    <div>
+                        <span>Hết hàng</span>
+                        <strong th:text="${outOfStockCount != null ? outOfStockCount : 0}">0</strong>
+                        <small>Sản phẩm cần nhập thêm ngay</small>
+                    </div>
+                    <i class="bi bi-exclamation-octagon"></i>
+                </div>
+
+                <div class="admin-stat-card admin-stat-card--amber">
+                    <div>
+                        <span>Sắp hết hàng</span>
+                        <strong th:text="${lowStockCount != null ? lowStockCount : 0}">0</strong>
+                        <small>Tồn kho thấp cần theo dõi</small>
+                    </div>
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+
+                <div class="admin-stat-card admin-stat-card--gold">
+                    <div>
+                        <span>Giỏ hàng hiện tại</span>
+                        <strong th:text="${cartCount}">0</strong>
+                        <small>Đồng bộ từ session đang hoạt động</small>
+                    </div>
+                    <i class="bi bi-cart3"></i>
+                </div>
+
+                <div class="admin-stat-card admin-stat-card--dark">
+                    <div>
+                        <span>Tạm tính giỏ hàng</span>
+                        <strong th:text="${#numbers.formatDecimal(cartSubtotal,0,'POINT',0,'COMMA') + '₫'}">0₫</strong>
+                        <small>Theo dữ liệu cart hiện tại</small>
+                    </div>
+                    <i class="bi bi-bag-check"></i>
+                </div>
+            </div>
+
+            <div class="admin-content-grid">
+                <section class="admin-panel admin-panel--chart">
+                    <div class="admin-panel-head">
+                        <div>
+                            <h2>Tổng quan doanh thu</h2>
+                            <p>Theo dõi xu hướng hoạt động cửa hàng theo chu kỳ gần nhất.</p>
+                        </div>
+                        <span class="admin-panel-tag">Báo cáo thực tế</span>
+                    </div>
+
+                    <div class="admin-chart-box">
+                        <div class="admin-chart-legend">
+                            <span><i class="is-gold"></i>Doanh thu</span>
+                            <span><i class="is-blue"></i>Đơn hàng</span>
+                        </div>
+
+                        <div class="admin-line-chart">
+                            <div class="admin-chart-grid"></div>
+                            <svg viewBox="0 0 640 260" preserveAspectRatio="none" aria-hidden="true">
+                                <polyline points="20,210 100,192 180,175 260,184 340,150 420,132 500,144 620,102" class="chart-line chart-line-gold"></polyline>
+                                <polyline points="20,224 100,216 180,204 260,198 340,186 420,172 500,164 620,148" class="chart-line chart-line-blue"></polyline>
+                            </svg>
+                            <div class="admin-chart-axis">
+                                <span>Tuần 1</span>
+                                <span>Tuần 2</span>
+                                <span>Tuần 3</span>
+                                <span>Tuần 4</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-panel admin-panel--donut">
+                    <div class="admin-panel-head">
+                        <div>
+                            <h2>Tổng quan</h2>
+                            <p>Phân bổ nhóm dữ liệu nổi bật.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-donut-wrap">
+                        <div class="admin-donut-chart"></div>
+                        <div class="admin-donut-center">
+                            <strong th:text="${categoryCount}">0</strong>
+                            <span>Danh mục</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-donut-legend">
+                        <div th:each="item,iter : ${categoryOverview}" th:if="${iter.index < 4}">
+                            <i th:class="${'legend-dot dot-' + iter.index}"></i>
+                            <span th:text="${item}">Điện thoại</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="admin-bottom-grid">
+                <section class="admin-panel" id="adminRecentOrders">
+                    <div class="admin-panel-head">
+                        <div>
+                            <h2>Đơn hàng gần đây</h2>
+                            <p>Danh sách đơn vừa phát sinh trong hệ thống.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-orders-table" th:if="${!#lists.isEmpty(recentOrders)}">
+                        <div class="admin-orders-head">
+                            <span>Khách hàng</span>
+                            <span>Mã đơn</span>
+                            <span>Trạng thái</span>
+                            <span>Thanh toán</span>
+                            <span>Thành tiền</span>
+                        </div>
+
+                        <div class="admin-orders-row" th:each="order : ${recentOrders}">
+                            <div class="admin-customer-cell">
+                                <div class="admin-customer-avatar" th:text="${#strings.substring(order.fullName,0,1)}">A</div>
+                                <div>
+                                    <strong th:text="${order.fullName}">Nguyễn Văn A</strong>
+                                    <span th:text="${order.phone}">0900000000</span>
+                                </div>
+                            </div>
+                            <span th:text="${order.orderCode}">TGDD-001</span>
+                            <span class="admin-status-badge"
+                                  th:classappend="${#strings.containsIgnoreCase(order.status, 'huỷ')} ? ' status-danger' : (${#strings.containsIgnoreCase(order.status, 'giao') || #strings.containsIgnoreCase(order.status, 'thành công')} ? ' status-success' : ' status-warning')"
+                                  th:text="${order.status}">Đã tiếp nhận</span>
+                            <span class="admin-status-badge"
+                                  th:classappend="${#strings.containsIgnoreCase(order.paymentStatus, 'paid') || #strings.containsIgnoreCase(order.paymentStatus, 'đã thanh toán')} ? ' status-success' : ' status-warning'"
+                                  th:text="${order.paymentStatus != null ? order.paymentStatus : 'Chưa thanh toán'}">Chưa thanh toán</span>
+                            <strong th:text="${#numbers.formatDecimal(order.grandTotal, 0, 'POINT', 0, 'COMMA') + '₫'}">0₫</strong>
+                        </div>
+                    </div>
+
+                    <div class="admin-empty-state" th:if="${#lists.isEmpty(recentOrders)}">
+                        <i class="bi bi-receipt-cutoff"></i>
+                        <p>Chưa có đơn hàng nào để hiển thị.</p>
+                    </div>
+                </section>
+
+                <section class="admin-panel" id="adminKeywords">
+                    <div class="admin-panel-head">
+                        <div>
+                            <h2>Mọi người cũng tìm kiếm</h2>
+                            <p>Từ khóa nổi bật hỗ trợ định hướng bán hàng.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-keyword-cloud">
+                        <span th:each="keyword : ${topKeywords}" th:text="${keyword}">laptop</span>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </div>
 </main>
 
-<div th:replace="~{layout :: footer}"></div>
 <div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

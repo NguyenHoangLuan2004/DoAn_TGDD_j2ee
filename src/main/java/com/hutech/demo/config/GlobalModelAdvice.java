@@ -4,7 +4,7 @@ import com.hutech.demo.model.AppUser;
 import com.hutech.demo.service.AuthService;
 import com.hutech.demo.service.CartService;
 import com.hutech.demo.service.CategoryService;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -31,18 +31,45 @@ public class GlobalModelAdvice {
         return cartService.getCartCount();
     }
 
+    @ModelAttribute("cartSubtotal")
+    public double cartSubtotal() {
+        return cartService.getSubtotal();
+    }
+
     @ModelAttribute("currentUser")
-    public AppUser currentUser(HttpSession session) {
-        Object userId = session.getAttribute("userId");
-        if (userId instanceof Long id) {
-            return authService.getById(id).orElse(null);
+    public AppUser currentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
         }
-        return null;
+
+        String email = authentication.getName();
+        if (email == null || email.isBlank() || "anonymousUser".equalsIgnoreCase(email)) {
+            return null;
+        }
+
+        return authService.getByEmail(email).orElse(null);
     }
 
     @ModelAttribute("isAdmin")
-    public boolean isAdmin(HttpSession session) {
-        AppUser user = currentUser(session);
+    public boolean isAdmin(Authentication authentication) {
+        AppUser user = currentUser(authentication);
         return user != null && user.isAdmin();
+    }
+
+    @ModelAttribute("isManager")
+    public boolean isManager(Authentication authentication) {
+        AppUser user = currentUser(authentication);
+        return user != null && user.isManager();
+    }
+
+    @ModelAttribute("isUser")
+    public boolean isUser(Authentication authentication) {
+        AppUser user = currentUser(authentication);
+        return user != null && user.isUser();
+    }
+
+    @ModelAttribute("isLoggedIn")
+    public boolean isLoggedIn(Authentication authentication) {
+        return currentUser(authentication) != null;
     }
 }

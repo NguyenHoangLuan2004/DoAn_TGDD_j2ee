@@ -8,9 +8,18 @@
     <section class="success-card">
         <div class="success-top">
             <div class="checkmark">✓</div>
-            <h1>Đặt hàng thành công!</h1>
-            <p>Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được ghi nhận.</p>
-            <div class="order-code">Mã đơn hàng: <strong th:text="${order.orderCode}"></strong></div>
+            <h1 th:text="${isPaymentReturn != null ? 'Kết quả thanh toán' : 'Đặt hàng thành công!'}">Đặt hàng thành công!</h1>
+            <p th:text="${paymentMessage != null ? paymentMessage : 'Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được ghi nhận.'}">
+                Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được ghi nhận.
+            </p>
+
+            <p th:if="${currentUser != null}">
+                Khách hàng: <strong th:text="${currentUser.fullName}">Người dùng</strong>
+            </p>
+
+            <div class="order-code">
+                Mã đơn hàng: <strong th:text="${order.orderCode}">ORD001</strong>
+            </div>
         </div>
 
         <div class="order-table">
@@ -20,18 +29,67 @@
                 <span>Đơn giá</span>
                 <span>Thành tiền</span>
             </div>
+
+            <div class="table-row" th:if="${#lists.isEmpty(order.items)}">
+                <span>Không có sản phẩm</span>
+                <span>0</span>
+                <span>0đ</span>
+                <span>0đ</span>
+            </div>
+
             <div class="table-row" th:each="item : ${order.items}">
-                <span th:text="${item.productName}"></span>
-                <span th:text="${item.quantity}"></span>
-                <span th:text="${#numbers.formatDecimal(item.unitPrice,0,'COMMA',0,'POINT')} + 'đ'"></span>
-                <span th:text="${#numbers.formatDecimal(item.lineTotal,0,'COMMA',0,'POINT')} + 'đ'"></span>
+                <span th:text="${item.productName}">Tên sản phẩm</span>
+                <span th:text="${item.quantity}">1</span>
+                <span th:text="${#numbers.formatDecimal(item.unitPrice,0,'COMMA',0,'POINT')} + 'đ'">0đ</span>
+                <span th:text="${#numbers.formatDecimal(item.lineTotal,0,'COMMA',0,'POINT')} + 'đ'">0đ</span>
             </div>
         </div>
 
         <div class="summary-total">
-            <div><span>Tổng tiền</span><strong th:text="${#numbers.formatDecimal(order.grandTotal,0,'COMMA',0,'POINT')} + 'đ'"></strong></div>
-            <div><span>Điểm tích lũy được cộng</span><strong th:text="${order.pointsEarned} + ' điểm'"></strong></div>
-            <div><span>Quy đổi</span><strong>Mỗi 10.000đ = 1 điểm</strong></div>
+            <div>
+                <span>Tạm tính</span>
+                <strong th:text="${#numbers.formatDecimal(order.subtotal,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+            </div>
+            <div>
+                <span>Phí giao hàng</span>
+                <strong th:text="${order.shippingFee > 0 ? #numbers.formatDecimal(order.shippingFee,0,'COMMA',0,'POINT') + 'đ' : 'Miễn phí'}">Miễn phí</strong>
+            </div>
+            <div th:if="${order.pointsDiscountAmount > 0}">
+                <span>Giảm từ điểm</span>
+                <strong th:text="'-' + ${#numbers.formatDecimal(order.pointsDiscountAmount,0,'COMMA',0,'POINT')} + 'đ'">-0đ</strong>
+            </div>
+            <div th:if="${order.voucherDiscount > 0}">
+                <span>Voucher <span th:text="${order.voucherCode}"></span></span>
+                <strong th:text="'-' + ${#numbers.formatDecimal(order.voucherDiscount,0,'COMMA',0,'POINT')} + 'đ'">-0đ</strong>
+            </div>
+            <div>
+                <span>Tổng tiền</span>
+                <strong th:text="${#numbers.formatDecimal(order.grandTotal,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+            </div>
+            <div>
+                <span>Thanh toán</span>
+                <strong th:text="${order.paymentMethod}">COD</strong>
+            </div>
+            <div>
+                <span>Trạng thái thanh toán</span>
+                <strong th:text="${order.paymentStatus}">PENDING</strong>
+            </div>
+            <div th:if="${order.paymentTransactionNo != null and !#strings.isEmpty(order.paymentTransactionNo)}">
+                <span>Mã giao dịch</span>
+                <strong th:text="${order.paymentTransactionNo}">000000</strong>
+            </div>
+            <div>
+                <span>Điểm tích lũy được cộng</span>
+                <strong th:text="${order.pointsEarned} + ' điểm'">0 điểm</strong>
+            </div>
+            <div>
+                <span>Quy đổi</span>
+                <strong>Mỗi 1.000đ = 1 điểm</strong>
+            </div>
+            <div th:if="${currentUser != null}">
+                <span>Điểm hiện tại</span>
+                <strong th:text="${currentUser.points} + ' điểm'">0 điểm</strong>
+            </div>
         </div>
 
         <div class="success-actions">

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Đăng ký tài khoản')}"></head>
+<body class="auth-page tgdd-auth-page">
+
+<header class="tgdd-auth-header">
+  <div class="tgdd-auth-header-inner">
+    <a th:href="@{/}" class="tgdd-auth-brand">
+      <img th:src="@{/images/logo-tgdd.png}" alt="Thế Giới Di Động">
+      <span>Đăng ký</span>
+    </a>
+    <a th:href="@{/login}" class="tgdd-auth-help">Đã có tài khoản?</a>
+  </div>
+</header>
+
+<main class="tgdd-auth-hero">
+  <div class="tgdd-auth-hero-inner">
+    <section class="tgdd-auth-banner">
+      <div class="tgdd-auth-banner-content">
+        <span class="tgdd-auth-badge">thegioididong.com</span>
+
+        <h1>Tạo tài khoản mới để mua sắm<br>nhanh hơn và tiện hơn</h1>
+
+        <p>
+          Đăng ký để theo dõi đơn hàng, tích điểm thành viên,
+          nhận ưu đãi và sử dụng các chức năng dành riêng cho khách hàng.
+        </p>
+
+        <div class="tgdd-auth-tags">
+          <span>Tích điểm</span>
+          <span>Theo dõi đơn hàng</span>
+          <span>Đăng nhập nhanh</span>
+          <span>Ưu đãi thành viên</span>
+          <span>Bảo mật</span>
+          <span>Chính hãng 100%</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tgdd-auth-card-wrap">
+      <div class="tgdd-auth-card">
+        <div class="tgdd-auth-ribbon">Tạo tài khoản mới</div>
+
+        <h2>Đăng ký</h2>
+
+        <p class="error tgdd-auth-error" th:if="${error}" th:text="${error}"></p>
+
+        <form th:action="@{/register}" method="post" class="tgdd-auth-form">
+          <input type="hidden"
+                 th:if="${_csrf != null}"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}">
+
+          <div class="tgdd-field">
+            <label>Họ và tên</label>
+            <input type="text"
+                   name="fullName"
+                   placeholder="Nhập họ và tên"
+                   th:value="${fullName}"
+                   required>
+          </div>
+
+          <div class="tgdd-field">
+            <label>Email</label>
+            <input type="email"
+                   name="email"
+                   placeholder="Nhập email"
+                   autocomplete="username"
+                   th:value="${email}"
+                   required>
+          </div>
+
+          <div class="tgdd-field">
+            <label>Số điện thoại</label>
+            <input type="text"
+                   name="phone"
+                   placeholder="Nhập số điện thoại"
+                   th:value="${phone}"
+                   required>
+          </div>
+
+          <div class="tgdd-field">
+            <label>Mật khẩu</label>
+            <div class="tgdd-password-wrap">
+              <input type="password"
+                     name="password"
+                     id="passwordField"
+                     placeholder="Nhập mật khẩu"
+                     autocomplete="new-password"
+                     required>
+              <button type="button" class="tgdd-toggle-password" onclick="togglePassword('passwordField', this)">Hiện</button>
+            </div>
+          </div>
+
+          <div class="tgdd-field">
+            <label>Xác nhận mật khẩu</label>
+            <div class="tgdd-password-wrap">
+              <input type="password"
+                     name="confirmPassword"
+                     id="confirmPasswordField"
+                     placeholder="Nhập lại mật khẩu"
+                     autocomplete="new-password"
+                     required>
+              <button type="button" class="tgdd-toggle-password" onclick="togglePassword('confirmPasswordField', this)">Hiện</button>
+            </div>
+          </div>
+
+          <button type="submit" class="tgdd-auth-submit">Tạo tài khoản</button>
+        </form>
+
+        <div class="tgdd-auth-extra">
+          <a th:href="@{/login}">Đã có tài khoản? Đăng nhập</a>
+          <span>•</span>
+          <a th:href="@{/}">Về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  function togglePassword(fieldId, btn) {
+      const input = document.getElementById(fieldId);
+      if (!input) return;
+
+      if (input.type === 'password') {
+          input.type = 'text';
+          btn.textContent = 'Ẩn';
+      } else {
+          input.type = 'password';
+          btn.textContent = 'Hiện';
+      }
+  }
+</script>
+
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

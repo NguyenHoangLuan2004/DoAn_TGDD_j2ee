@@ -43,7 +43,14 @@
 
                 <h2>Đăng nhập</h2>
 
+                <p class="tgdd-auth-success" th:if="${message}" th:text="${message}"></p>
+                <p class="error tgdd-auth-error" th:if="${error}" th:text="${error}"></p>
+
                 <form th:action="@{/login}" method="post" class="tgdd-auth-form">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
                     <input type="hidden" name="redirect" th:value="${redirect}">
 
                     <div class="tgdd-field">
@@ -71,8 +78,6 @@
                     </div>
 
                     <button type="submit" class="tgdd-auth-submit">Đăng nhập</button>
-
-                    <p class="error tgdd-auth-error" th:if="${error}" th:text="${error}"></p>
                 </form>
 
                 <div class="tgdd-demo-login">
@@ -80,6 +85,7 @@
 
                     <div class="tgdd-demo-buttons">
                         <button type="button" onclick="fillDemo('khach@tgdd.vn','123456')">Khách hàng</button>
+                        <button type="button" onclick="fillDemo('manager@tgdd.vn','manager123')">Manager</button>
                         <button type="button" onclick="fillDemo('admin@tgdd.vn','admin123')">Admin</button>
                     </div>
 
@@ -89,6 +95,10 @@
                             <span>admin@tgdd.vn / admin123</span>
                         </div>
                         <div>
+                            <strong>Manager</strong>
+                            <span>manager@tgdd.vn / manager123</span>
+                        </div>
+                        <div>
                             <strong>Khách hàng</strong>
                             <span>khach@tgdd.vn / 123456</span>
                         </div>
@@ -96,6 +106,8 @@
                 </div>
 
                 <div class="tgdd-auth-extra">
+                    <a th:href="@{/register}">Tạo tài khoản</a>
+                    <span>•</span>
                     <a th:href="@{/}">Về trang chủ</a>
                     <span>•</span>
                     <a href="javascript:void(0)">Quên mật khẩu</a>

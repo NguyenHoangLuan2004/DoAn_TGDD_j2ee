@@ -1,41 +1,103 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: head(${category.name})}"></head>
-<body>
+<body class="category-page-enhanced">
 <div th:replace="~{layout :: header}"></div>
 
 <main class="page-shell">
-    <section class="category-shell">
-        <div class="section-header">
-            <h1 th:text="${category.name}">Điện thoại</h1>
-            <a th:if="${isAdmin}" th:href="@{/admin/products}">Quản lý sản phẩm</a>
+    <section class="category-shell category-shell-enhanced">
+        <div class="section-header category-header-enhanced">
+            <div>
+                <h1 th:text="${category.name}">Điện thoại</h1>
+                <p class="category-subtitle">Chọn sản phẩm phù hợp nhu cầu với mức giá tốt tại Thế Giới Di Động</p>
+            </div>
+
+            <th:block th:if="${isAdmin}">
+                <a th:href="@{/admin/products}" class="category-admin-link">Quản lý sản phẩm</a>
+            </th:block>
         </div>
 
-        <div class="category-grid">
-            <article class="product-card" th:each="item : ${products}">
-                <a th:href="@{/products/{id}(id=${item.id})}">
-                    <div class="product-image">
-                        <img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}">
+        <div class="category-grid related-grid-enhanced" th:if="${products != null and !#lists.isEmpty(products)}">
+            <article class="product-card related-product-card category-product-card" th:each="item : ${products}">
+                <button type="button" class="mini-wishlist-btn"
+                        th:attr="data-id=${item.id},data-name=${item.name},data-image=${item.image},data-price=${item.price}">❤</button>
+
+                <a th:href="@{/products/{id}(id=${item.id})}" class="category-product-link">
+                    <div class="product-image"><img th:src="@{/images/{file}(file=${item.image})}" th:alt="${item.name}"></div>
+                    <div class="category-card-badges">
+                        <span th:if="${item.discountPercent > 0}" th:text="'Giảm ' + ${item.discountPercent} + '%'">Giảm 10%</span>
+                        <span th:text="${item.safeStock > 0 ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</span>
                     </div>
                     <h3 th:text="${item.name}">Tên sản phẩm</h3>
+                    <p class="desc" th:text="${item.shortDescription != null and !#strings.isEmpty(item.shortDescription) ? item.shortDescription : 'Thiết kế đẹp, hiệu năng ổn định, phù hợp nhu cầu hằng ngày'}">Mô tả ngắn</p>
                     <div class="price red" th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + 'đ'">0đ</div>
                     <div class="old-price" th:if="${item.originalPrice != null}">
                         <span th:text="${#numbers.formatDecimal(item.originalPrice,0,'COMMA',0,'POINT')} + 'đ'"></span>
                         <em th:if="${item.discountPercent > 0}" th:text="'-' + ${item.discountPercent} + '%'"></em>
                     </div>
-                    <p class="desc" th:text="${item.shortDescription}"></p>
+                    <div class="category-card-meta">
+                        <span>⭐ 4.8</span><span>•</span><span th:text="${item.safeStock > 0 ? 'Kho: ' + item.safeStock : 'Tạm hết hàng'}">Đã bán tốt</span>
+                    </div>
                 </a>
-                <form th:action="@{/cart/add/{id}(id=${item.id})}" method="post">
+
+                <form th:action="@{/cart/add/{id}(id=${item.id})}" method="post" class="category-card-form ajax-add-cart-form">
                     <input type="hidden" name="quantity" value="1">
                     <input type="hidden" th:name="redirectUrl" th:value="@{/products/category/{id}(id=${category.id})}">
-                    <button class="buy-button" type="submit">Thêm vào giỏ</button>
+                    <button class="buy-button category-buy-btn" type="submit" th:disabled="${item.safeStock <= 0}" th:text="${item.safeStock > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}">Thêm vào giỏ</button>
                 </form>
             </article>
+        </div>
+
+        <div class="category-empty-state" th:if="${products == null or #lists.isEmpty(products)}">
+            <h3>Hiện chưa có sản phẩm trong danh mục này</h3>
+            <p>Vui lòng quay lại sau hoặc khám phá thêm các danh mục khác trên hệ thống.</p>
+            <a th:href="@{/}" class="buy-button large">Về trang chủ</a>
         </div>
     </section>
 </main>
 
 <div th:replace="~{layout :: footer}"></div>
 <div th:replace="~{layout :: scripts}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initCategoryWishlistButtons();
+        document.querySelectorAll('.ajax-add-cart-form').forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const action = form.getAttribute('action') || '';
+                const productId = action.split('/').pop();
+                const quantity = Number(form.querySelector('[name="quantity"]')?.value || 1);
+                const redirectUrl = form.querySelector('[name="redirectUrl"]')?.value || window.location.pathname;
+                const result = await tgddAddToCart(productId, quantity, redirectUrl);
+                alert(result.data?.message || (result.ok ? 'Đã thêm vào giỏ hàng' : 'Không thể thêm vào giỏ hàng'));
+            });
+        });
+    });
+
+    function getWishlist() { return JSON.parse(localStorage.getItem("wishlistProducts") || "[]"); }
+    function saveWishlist(items) { localStorage.setItem("wishlistProducts", JSON.stringify(items)); }
+    function toggleWishlistByData(button) {
+        const item = { id: button.dataset.id, name: button.dataset.name, image: button.dataset.image, price: button.dataset.price };
+        let wishlist = getWishlist();
+        const exists = wishlist.some(p => String(p.id) === String(item.id));
+        wishlist = exists ? wishlist.filter(p => String(p.id) !== String(item.id)) : [item, ...wishlist];
+        button.classList.toggle("active", !exists);
+        saveWishlist(wishlist); syncCategoryWishlistStates();
+    }
+    function initCategoryWishlistButtons() {
+        document.querySelectorAll(".mini-wishlist-btn").forEach(btn => {
+            btn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); toggleWishlistByData(btn); });
+        });
+        syncCategoryWishlistStates();
+    }
+    function syncCategoryWishlistStates() {
+        const wishlist = getWishlist();
+        document.querySelectorAll(".mini-wishlist-btn").forEach(btn => {
+            const exists = wishlist.some(p => String(p.id) === String(btn.dataset.id));
+            btn.classList.toggle("active", exists);
+        });
+    }
+</script>
 </body>
 </html>

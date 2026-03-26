@@ -3,62 +3,74 @@
 <head th:replace="~{layout :: head('Giỏ hàng')}"></head>
 
 <style>
-    .keywords-section {
-        display: none !important;
-    }
+    .keywords-section { display: none !important; }
 </style>
 
 <body class="cart-page">
 <div th:replace="~{layout :: header}"></div>
 
 <main class="page-shell cart-page-custom">
-
-    <!-- EMPTY CART -->
     <section th:if="${#lists.isEmpty(cartItems)}" class="cart-empty-wrap">
         <div class="cart-empty-card">
             <img th:src="@{/images/empty-cart.svg}" alt="Giỏ hàng trống" class="cart-empty-image">
-
             <h1 class="cart-empty-title">Giỏ hàng trống</h1>
             <p class="cart-empty-desc">Không có sản phẩm nào trong giỏ hàng</p>
-
             <a class="cart-empty-home-btn" th:href="@{/}">Về trang chủ</a>
-
             <p class="cart-empty-support">
                 Khi cần trợ giúp vui lòng gọi
                 <a href="tel:1900232460">1900 232 460</a>
-                hoặc
-                <a href="tel:02836221060">028.3622.1060</a>
+                hoặc <a href="tel:02836221060">028.3622.1060</a>
                 <span>(8h00 - 21h30)</span>
             </p>
         </div>
     </section>
 
-    <!-- CART HAS ITEMS -->
     <section th:unless="${#lists.isEmpty(cartItems)}" class="cart-shell">
+        <div th:if="${errorMessage != null}" class="tgdd-auth-error" style="margin-bottom:16px;" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage != null}" class="tgdd-auth-success" style="margin-bottom:16px;" th:text="${successMessage}"></div>
+
         <div class="section-header">
             <h1>Giỏ hàng của bạn</h1>
             <a th:href="@{/cart/clear}">Xóa tất cả</a>
         </div>
 
         <div class="cart-layout">
-            <div class="cart-list">
-                <article class="cart-item" th:each="item : ${cartItems}">
+            <div class="cart-list" id="cartListWrap">
+                <article class="cart-item"
+                         th:each="item : ${cartItems}"
+                         th:attr="data-product-id=${item.product.id},data-unit-price=${item.product.price},data-stock=${item.product.safeStock}">
                     <img th:src="@{/images/{file}(file=${item.product.image})}" th:alt="${item.product.name}">
 
                     <div class="cart-item-info">
                         <h3 th:text="${item.product.name}"></h3>
 
                         <div class="price red"
-                             th:text="${#numbers.formatDecimal(item.product.price,0,'COMMA',0,'POINT')} + 'đ'">
-                        </div>
+                             th:text="${#numbers.formatDecimal(item.product.price,0,'COMMA',0,'POINT')} + 'đ'"></div>
 
-                        <form th:action="@{/cart/update/{id}(id=${item.product.id})}" method="post" class="qty-form">
-                            <input type="number" name="quantity" min="1" th:value="${item.quantity}">
+                        <p style="margin:6px 0 10px; color:#6b7280; font-size:14px;"
+                           th:text="${item.product.safeStock > 0 ? 'Còn ' + item.product.safeStock + ' sản phẩm' : 'Tạm hết hàng'}">
+                            Còn hàng
+                        </p>
+
+                        <form th:action="@{/cart/update/{id}(id=${item.product.id})}" method="post" class="qty-form ajax-cart-update-form">
+                            <input type="number"
+                                   name="quantity"
+                                   min="1"
+                                   th:attr="max=${item.product.safeStock}"
+                                   th:value="${item.quantity}">
                             <button type="submit">Cập nhật</button>
                         </form>
+
+                        <div class="summary-row" style="margin-top:10px; justify-content:flex-start; gap:8px;">
+                            <span>Tạm tính:</span>
+                            <strong class="cart-line-total"
+                                    th:text="${#numbers.formatDecimal(item.product.price * item.quantity,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+                        </div>
                     </div>
 
-                    <a class="remove-link" th:href="@{/cart/remove/{id}(id=${item.product.id})}">Xóa</a>
+                    <a class="remove-link ajax-remove-link"
+                       href="javascript:void(0)"
+                       th:attr="data-product-id=${item.product.id}">Xóa</a>
                 </article>
             </div>
 
@@ -67,22 +79,72 @@
 
                 <div class="summary-row">
                     <span>Số sản phẩm</span>
-                    <strong th:text="${cartCount}"></strong>
+                    <strong data-cart-count-text th:text="${cartCount}"></strong>
                 </div>
 
                 <div class="summary-row">
                     <span>Tạm tính</span>
-                    <strong th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'"></strong>
+                    <strong data-cart-subtotal-text th:text="${#numbers.formatDecimal(subtotal,0,'COMMA',0,'POINT')} + 'đ'"></strong>
                 </div>
+
+                <div class="summary-row">
+                    <span>Phí giao hàng dự kiến</span>
+                    <strong th:text="${shippingFee != null && shippingFee > 0 ? #numbers.formatDecimal(shippingFee,0,'COMMA',0,'POINT') + 'đ' : 'Miễn phí'}">Miễn phí</strong>
+                </div>
+
+                <p style="margin-top:10px; color:#6b7280; font-size:13px; line-height:1.5;">
+                    Đơn từ 1.000.000đ có thể được miễn phí giao hàng tùy điều kiện hiện hành.
+                </p>
 
                 <a class="buy-button large" th:href="@{/order/checkout}">Tiếp tục thanh toán</a>
             </aside>
         </div>
     </section>
-
 </main>
 
 <div th:replace="~{layout :: footer}"></div>
 <div th:replace="~{layout :: scripts}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.ajax-cart-update-form').forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const wrap = form.closest('.cart-item');
+                const productId = wrap?.dataset.productId;
+                const input = form.querySelector('input[name="quantity"]');
+                const stock = Number(wrap?.dataset.stock || 0);
+                let quantity = Number(input?.value || 1);
+                if (quantity < 1) quantity = 1;
+                if (stock > 0 && quantity > stock) quantity = stock;
+                if (input) input.value = quantity;
+
+                const result = await tgddUpdateCartItem(productId, quantity);
+                if (result.ok) {
+                    const unitPrice = Number(wrap?.dataset.unitPrice || 0);
+                    const lineTotal = wrap?.querySelector('.cart-line-total');
+                    if (lineTotal) lineTotal.textContent = tgddFormatVnd(unitPrice * quantity);
+                    if (result.data?.message) alert(result.data.message);
+                    return;
+                }
+                alert(result.data?.message || 'Không thể cập nhật giỏ hàng');
+            });
+        });
+
+        document.querySelectorAll('.ajax-remove-link').forEach(link => {
+            link.addEventListener('click', async function () {
+                const productId = link.dataset.productId;
+                const row = link.closest('.cart-item');
+                const result = await tgddRemoveCartItem(productId);
+                if (result.ok) {
+                    row?.remove();
+                    if (!document.querySelector('.cart-item')) window.location.reload();
+                    return;
+                }
+                alert(result.data?.message || 'Không thể xóa sản phẩm');
+            });
+        });
+    });
+</script>
 </body>
 </html>

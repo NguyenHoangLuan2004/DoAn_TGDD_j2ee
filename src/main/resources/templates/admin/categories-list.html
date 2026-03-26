@@ -1,48 +1,184 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: head('Quản lý danh mục')}"></head>
-<body>
-<div th:replace="~{layout :: header}"></div>
+<body class="admin-dashboard-page admin-subpage">
 
-<main class="page-shell">
-    <section class="admin-shell">
-        <div class="section-header">
-            <h1>Quản lý danh mục</h1>
-            <div class="admin-actions">
-                <a class="secondary-button" th:href="@{/admin}">Dashboard</a>
-                <a class="buy-button" th:href="@{/admin/categories/add}">+ Thêm danh mục</a>
+<main class="admin-dashboard-wrapper">
+    <div class="admin-dashboard-shell">
+
+        <aside class="admin-sidebar">
+            <div>
+                <a th:href="@{/admin}" class="admin-sidebar-brand">
+                    <img th:src="@{/images/logo-tgdd.png}" alt="Thế Giới Di Động">
+                </a>
+
+                <nav class="admin-sidebar-nav">
+                    <a th:href="@{/admin}" >
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>Bảng điều hành</span>
+                    </a>
+                    <a th:href="@{/admin/products}" >
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}" class="active">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <a th:href="@{/}">
+                        <i class="bi bi-house-door"></i>
+                        <span>Về trang chủ</span>
+                    </a>
+                    <a th:href="@{/admin/categories/add}" >
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Thêm danh mục</span>
+                    </a>
+                </nav>
             </div>
-        </div>
 
-        <div class="admin-table-wrap">
-            <table class="admin-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Icon</th>
-                    <th>Thứ tự</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${categories}">
-                    <td th:text="${item.id}"></td>
-                    <td th:text="${item.name}"></td>
-                    <td><i class="bi" th:classappend="${item.iconClass}"></i> <span th:text="${item.iconClass}"></span></td>
-                    <td th:text="${item.displayOrder}"></td>
-                    <td class="admin-actions">
-                        <a th:href="@{/admin/categories/edit/{id}(id=${item.id})}">Sửa</a>
-                        <a th:href="@{/admin/categories/delete/{id}(id=${item.id})}" onclick="return confirm('Xóa danh mục?')">Xóa</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+            <form th:action="@{/logout}" method="post" class="admin-sidebar-logout">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <button type="submit">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </form>
+        </aside>
+
+        <section class="admin-dashboard-main">
+
+            <div class="admin-topbar">
+                <label class="admin-top-search admin-table-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Tìm tên danh mục, icon..." data-admin-table-target="#adminCategoriesTableBody">
+                </label>
+
+                <div class="admin-topbar-actions">
+                    <a th:href="@{/admin}" class="admin-top-link ">
+                        <i class="bi bi-house-door"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a th:href="@{/admin/products}" class="admin-top-link ">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a th:href="@{/admin/categories}" class="admin-top-link is-active">
+                        <i class="bi bi-grid"></i>
+                        <span>Danh mục</span>
+                    </a>
+                    <div class="admin-top-user" th:if="${currentUser != null}">
+                        <div>
+                            <strong th:text="${currentUser.fullName}">Quản trị viên</strong>
+                            <span>Quản trị viên</span>
+                        </div>
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-page-head">
+                <div>
+                    <p class="admin-overline">Quản trị danh mục</p>
+                    <h1>Quản lý danh mục sản phẩm</h1>
+                    <p th:if="${currentUser != null}">Xin chào, <strong th:text="${currentUser.fullName}">Quản trị viên</strong>. Theo dõi và cập nhật toàn bộ nhóm sản phẩm đang hiển thị trên cửa hàng.</p>
+                </div>
+
+                <div class="admin-page-actions">
+                    <a class="admin-ghost-btn" th:href="@{/admin}">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Về dashboard</span>
+                    </a>
+                    <a class="admin-primary-btn" th:href="@{/admin/categories/add}">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Thêm danh mục</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="admin-toolbar-panel">
+                <div>
+                    <strong class="admin-inline-hint"><i class="bi bi-grid-3x3-gap"></i> Danh sách nhóm sản phẩm</strong>
+                    <p class="admin-toolbar-note">Bạn có thể tìm nhanh theo tên danh mục hoặc mã icon bằng ô tìm kiếm phía trên.</p>
+                </div>
+                <div class="admin-inline-actions">
+                    <span class="admin-small-badge admin-category-badge">
+                        <i class="bi bi-collection"></i>
+                        <span th:text="${#lists.size(categories)} + ' danh mục'">0 danh mục</span>
+                    </span>
+                </div>
+            </div>
+
+            <section class="admin-table-panel">
+                <div class="admin-table-headline">
+                    <div>
+                        <h2>Bảng danh mục</h2>
+                        <p>Sắp xếp, chỉnh sửa hoặc xoá nhanh từng nhóm hiển thị trên menu.</p>
+                    </div>
+                </div>
+
+                <div class="admin-modern-table-wrap">
+                    <table class="admin-modern-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên danh mục</th>
+                            <th>Icon</th>
+                            <th>Thứ tự</th>
+                            <th>Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody id="adminCategoriesTableBody">
+                        <tr th:if="${#lists.isEmpty(categories)}" class="admin-empty-row">
+                            <td colspan="5">
+                                <div class="admin-empty-box">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                    <div>
+                                        <strong>Chưa có danh mục nào</strong>
+                                        <div>Hãy thêm danh mục đầu tiên để sắp xếp giao diện cửa hàng.</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:each="item : ${categories}" data-admin-row>
+                            <td data-label="ID"><span class="admin-id-badge" th:text="${item.id}">1</span></td>
+                            <td data-label="Tên danh mục">
+                                <div class="admin-name-cell">
+                                    <strong th:text="${item.name}">Điện thoại</strong>
+                                    <span>Nhóm hiển thị ở thanh điều hướng</span>
+                                </div>
+                            </td>
+                            <td data-label="Icon">
+                                <span class="admin-icon-chip">
+                                    <i class="bi" th:classappend="${item.iconClass}"></i>
+                                    <span th:text="${item.iconClass}">bi-phone</span>
+                                </span>
+                            </td>
+                            <td data-label="Thứ tự"><span class="admin-category-badge" th:text="'Vị trí ' + ${item.displayOrder}">Vị trí 1</span></td>
+                            <td data-label="Thao tác">
+                                <div class="admin-row-actions">
+                                    <a class="admin-table-action edit" th:href="@{/admin/categories/edit/{id}(id=${item.id})}">
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Sửa</span>
+                                    </a>
+                                    <a class="admin-table-action delete" th:href="@{/admin/categories/delete/{id}(id=${item.id})}" onclick="return confirm('Xóa danh mục này?')">
+                                        <i class="bi bi-trash3"></i>
+                                        <span>Xóa</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </div>
 </main>
 
-<div th:replace="~{layout :: footer}"></div>
-<div th:replace="~{layout :: scripts}"></div>
+<script th:src="@{/js/site.js}"></script>
 </body>
 </html>

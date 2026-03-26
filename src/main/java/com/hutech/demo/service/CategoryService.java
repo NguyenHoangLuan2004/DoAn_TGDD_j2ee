@@ -24,6 +24,10 @@ public class CategoryService {
         return categoryRepository.findById(id);
     }
 
+    public long count() {
+        return categoryRepository.count();
+    }
+
     public Category save(Category category) {
         return categoryRepository.save(category);
     }

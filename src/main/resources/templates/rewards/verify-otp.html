@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Xác thực OTP đổi điểm')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow">
+    <section class="auth-box">
+        <div class="auth-panel wide">
+            <h1>Xác thực OTP</h1>
+
+            <p class="muted">
+                Để hoàn tất đổi điểm, vui lòng nhập mã OTP xác thực.
+            </p>
+
+            <div class="order-summary-box">
+                <div class="summary-row">
+                    <span>Voucher</span>
+                    <strong th:text="${redemption.voucherName}">Voucher</strong>
+                </div>
+                <div class="summary-row" th:if="${redemption.code != null}">
+                    <span>Mã voucher</span>
+                    <strong th:text="${redemption.code}">VC50K</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Điểm sẽ trừ</span>
+                    <strong th:text="${redemption.pointsUsed} + ' điểm'">0 điểm</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Giảm giá nhận được</span>
+                    <strong th:text="${#numbers.formatDecimal(redemption.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+                </div>
+            </div>
+
+            <div class="demo-accounts" style="margin-bottom:16px;">
+                <strong>OTP demo:</strong>
+                <span th:text="${demoOtp}">123456</span>
+                <span class="muted">Dùng cho demo local thay cho SMS/app.</span>
+            </div>
+
+            <p class="error" th:if="${error}" th:text="${error}"></p>
+
+            <form th:action="@{/rewards/verify}" method="post" class="auth-form">
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <input type="hidden" name="redemptionId" th:value="${redemption.id}">
+
+                <label for="otp">Nhập mã OTP</label>
+                <input id="otp" name="otp" maxlength="6" placeholder="Nhập 6 số OTP" required>
+
+                <button type="submit" class="buy-button large">Xác nhận đổi điểm</button>
+            </form>
+
+            <div class="success-actions" style="margin-top:16px;">
+                <a class="secondary-button" th:href="@{/rewards}">Quay lại đổi điểm</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

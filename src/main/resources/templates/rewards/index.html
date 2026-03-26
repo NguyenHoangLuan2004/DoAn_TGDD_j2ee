@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Đổi điểm thưởng')}"></head>
+<body>
+<div th:replace="~{layout :: header}"></div>
+
+<main class="page-shell narrow-order">
+    <section class="admin-shell">
+        <div class="section-header">
+            <div>
+                <h1>Đổi điểm thưởng</h1>
+                <p th:if="${currentUser != null}">
+                    Tài khoản:
+                    <strong th:text="${currentUser.fullName}">Khách hàng</strong>
+                    -
+                    Điểm hiện có:
+                    <strong th:text="${currentUser.points}">0</strong>
+                </p>
+            </div>
+        </div>
+
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+            <div class="product-card" th:each="voucher : ${vouchers}" style="padding:18px;">
+                <h3 th:text="${voucher.name}">Voucher giảm giá</h3>
+                <p class="desc" th:text="${voucher.description}">Mô tả voucher</p>
+
+                <div class="summary-row">
+                    <span>Điểm cần</span>
+                    <strong th:text="${voucher.pointsRequired} + ' điểm'">0 điểm</strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Giảm giá</span>
+                    <strong th:text="${#numbers.formatDecimal(voucher.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+                </div>
+
+                <div class="summary-row" th:if="${voucher.minOrderAmount != null}">
+                    <span>Đơn tối thiểu</span>
+                    <strong th:text="${#numbers.formatDecimal(voucher.minOrderAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+                </div>
+
+                <form th:action="@{/rewards/redeem}" method="post" style="margin-top:12px;">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <input type="hidden" name="voucherId" th:value="${voucher.id}">
+                    <button type="submit" class="buy-button large">Đổi ngay</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="order-summary-box" style="margin-top:24px;"
+             th:if="${verifiedRedemptions != null and !#lists.isEmpty(verifiedRedemptions)}">
+            <h2 style="margin-top:0;">Voucher đã xác thực</h2>
+            <p class="muted">Các voucher dưới đây có thể được chọn ở bước checkout để áp dụng giảm giá.</p>
+            <div class="summary-row" th:each="item : ${verifiedRedemptions}">
+                <span th:text="${item.voucherName} + ' - ' + item.code">Voucher</span>
+                <strong th:text="${#numbers.formatDecimal(item.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</strong>
+            </div>
+        </div>
+
+        <div class="admin-table-wrap" style="margin-top:24px;">
+            <h2 style="margin:0 0 12px;">Lịch sử đổi điểm</h2>
+
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Voucher</th>
+                    <th>Điểm dùng</th>
+                    <th>Giảm giá</th>
+                    <th>Trạng thái</th>
+                    <th>Thời gian</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(histories)}">
+                    <td colspan="6" style="text-align:center;">Chưa có lịch sử đổi điểm.</td>
+                </tr>
+
+                <tr th:each="item : ${histories}">
+                    <td th:text="${item.id}">1</td>
+                    <td th:text="${item.voucherName}">Voucher</td>
+                    <td th:text="${item.pointsUsed} + ' điểm'">0 điểm</td>
+                    <td th:text="${#numbers.formatDecimal(item.discountAmount,0,'COMMA',0,'POINT')} + 'đ'">0đ</td>
+                    <td th:text="${item.status}">PENDING</td>
+                    <td th:text="${item.createdAt}">2026-03-16T15:00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
